@@ -1,3 +1,11 @@
 [build]
   publish = ".next"
   command = "npm run build"
+
+# Forward requests to /legacy if the browser sends a cookie 
+# named `is_legacy` or `my_other_cookie`
+[[redirects]]
+from = "/*"
+to = "https://silversea.uat.bbhosted.com"
+status = 301
+conditions = {Cookie = ["test_bucket","b"]}
