@@ -8,4 +8,5 @@
 from = "/*"
 to = "https://silversea.uat.bbhosted.com/:splat"
 status = 301
+force = true
 conditions = {Cookie = ["test_bucket","b"]}
