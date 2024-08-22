@@ -6,7 +6,6 @@
 # named `is_legacy` or `my_other_cookie`
 [[redirects]]
 from = "/*"
-to = "https://silversea.uat.bbhosted.com/:splat"
+to = "https://silversea.uat.bbhosted.com/"
 status = 301
-force = true
 conditions = {Cookie = ["test_bucket","b"]}
