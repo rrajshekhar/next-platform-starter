@@ -7,6 +7,9 @@ export default async (request: Request, context: Context) => {
 
   // return here if we find a cookie
   if (bucket) {
+    if( bucket === 'b') {
+    request.headers.set("Access-Control-Allow-Origin", "*. bbhosted.com");
+    }
     return context.next();
   }
 
