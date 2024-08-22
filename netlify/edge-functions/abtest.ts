@@ -7,7 +7,7 @@ export default async (request: Request, context: Context) => {
 
   // return here if we find a cookie
   if (bucket) {
-    return new Response(`Welcome back! You were assigned ${bucketName} **${bucket}** when you last visited the site!`);
+    return context.next();
   }
 
   // if no "test_bucket" cookie is found, assign the user to a bucket
@@ -24,12 +24,9 @@ export default async (request: Request, context: Context) => {
     name: bucketName,
     value: newBucketValue,
   });
-
-  return new Response(
-    `Congratulations! You have been assigned ${bucketName} **${newBucketValue}**. View your browser cookies to check it out!`,
-  );
+  
 };
 
 export const config: Config = {
-  path: "/abtest",
+  path: "/*",
 };
