@@ -24,7 +24,7 @@ export default async (request: Request, context: Context) => {
     
   }
 
-  return { statusCode: 200
+  return { statusCode: 200 };
 };
 
 export const config: Config = {
