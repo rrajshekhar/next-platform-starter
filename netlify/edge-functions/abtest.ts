@@ -6,11 +6,8 @@ export default async (request: Request, context: Context) => {
   const bucket = context.cookies.get(bucketName);
 
   // return here if we find a cookie
-  if (bucket) {
-    return new Response(`Welcome back! You were assigned ${bucketName} **${bucket}** when you last visited the site!`);
-  }
-
-  // if no "test_bucket" cookie is found, assign the user to a bucket
+  if (!bucket) {
+    // if no "test_bucket" cookie is found, assign the user to a bucket
   // in this example we're using two buckets (a, b) with an equal weighting of 50/50
   const weighting = 0.5;
 
@@ -24,12 +21,12 @@ export default async (request: Request, context: Context) => {
     name: bucketName,
     value: newBucketValue,
   });
+    
+  }
 
-  return new Response(
-    `Congratulations! You have been assigned ${bucketName} **${newBucketValue}**. View your browser cookies to check it out!`,
-  );
+  return { statusCode: 200
 };
 
 export const config: Config = {
-  path: "/*",
+  path: "/",
 };
