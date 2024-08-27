@@ -1,34 +1,23 @@
 import type { Context, Config } from "@netlify/edge-functions";
-
+const BUCKET_COOKIE_NAME = "test_bucket";
+const REDIRECT_URL = "https://silversea.uat.bbhosted.com/";
+const BUCKET_WEIGHTING = 0.5;
 export default async (request: Request, context: Context) => {
-  // look for existing "test_bucket" cookie
-  const bucketName = "test_bucket";
-  const bucket = context.cookies.get(bucketName);
-
-  // return here if we find a cookie
-  if (bucket) {
-    if( bucket === 'b') {
-      return Response.redirect("https://silversea.uat.bbhosted.com/", 301);
-    }
+  const existingBucket = context.cookies.get(BUCKET_COOKIE_NAME);
+  if (existingBucket) {
+    return existingBucket === 'b'
+      ? Response.redirect(REDIRECT_URL, 301)
+      : context.next();
   }
-
-  // if no "test_bucket" cookie is found, assign the user to a bucket
-  // in this example we're using two buckets (a, b) with an equal weighting of 50/50
-  const weighting = 0.5;
-
-  // get a random number between (0-1)
-  // this is a basic example and you may want to experiment
-  const random = Math.random();
-  const newBucketValue = random <= weighting ? "a" : "b";
-
-  // set the new "test_bucket" cookie
+  const newBucket = Math.random() <= BUCKET_WEIGHTING ? "a" : "b";
   context.cookies.set({
-    name: bucketName,
-    value: newBucketValue,
+    name: BUCKET_COOKIE_NAME,
+    value: newBucket,
   });
-  
+  return newBucket === 'b'
+    ? Response.redirect(REDIRECT_URL, 301)
+    : context.next();
 };
-
 export const config: Config = {
   path: "/*",
 };
