@@ -8,9 +8,6 @@ export default async (request: Request, context: Context) => {
   if(forceOverride === 'bb') {
      return Response.redirect(REDIRECT_URL, 301)
   } 
-  if(forceOverride === 'ssc') {
-     return context.next();
-  } 
   const existingBucket = context.cookies.get(BUCKET_COOKIE_NAME);
   if (existingBucket) {
     return existingBucket === 'bb'
