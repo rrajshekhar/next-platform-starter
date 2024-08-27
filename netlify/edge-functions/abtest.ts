@@ -7,7 +7,9 @@ export default async (request: Request, context: Context) => {
 
   // return here if we find a cookie
   if (bucket) {
-    return context.next();
+    if( bucket === 'b') {
+      return Response.redirect("https://silversea.uat.bbhosted.com/", 301);
+    }
   }
 
   // if no "test_bucket" cookie is found, assign the user to a bucket
