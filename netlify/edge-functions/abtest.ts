@@ -3,6 +3,11 @@ const BUCKET_COOKIE_NAME = "force_redirect";
 const REDIRECT_URL = "https://www-silversea.uat.bbhosted.com";
 const BUCKET_WEIGHTING = Netlify.env.get("BUCKET_WEIGHTING");
 export default async (request: Request, context: Context) => {
+  let url = new URL(request.url);
+  const forceOverride = url.searchParams.get("forceOverride");
+  if(forceOverride === 'bb') {
+     return Response.redirect(REDIRECT_URL, 301)
+  } 
   const existingBucket = context.cookies.get(BUCKET_COOKIE_NAME);
   if (existingBucket) {
     return existingBucket === 'bb'
