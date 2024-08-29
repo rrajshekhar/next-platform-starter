@@ -1,5 +1,5 @@
 import type { Context, Config } from "@netlify/edge-functions";
-const BUCKET_COOKIE_NAME = "force_redirect";
+const BUCKET_COOKIE_NAME = "edge_redirect";
 const REDIRECT_URL = "https://www-silversea.uat.bbhosted.com";
 const BUCKET_WEIGHTING = Netlify.env.get("BUCKET_WEIGHTING");
 export default async (request: Request, context: Context) => {
