@@ -1,11 +1,9 @@
 import type { Context, Config } from "@netlify/edge-functions";
 
 const BUCKET_COOKIE_NAME = "edge_redirect";
-const REDIRECT_URL = "https://www-silversea.uat.bbhosted.com";
+const REDIRECT_URL = "https://www-silversea.uat.bbhosted.com/:splat";
 const BUCKET_WEIGHTING = Netlify.env.get("BUCKET_WEIGHTING");
 export default async (request: Request, context: Context) => {
-  let language = context.geo.language?.code;
-  console.log('Selected Language: ${language}');
   let url = new URL(request.url);
   const forceOverride = url.searchParams.get("forceOverride");
   if(forceOverride === 'bb') {
