@@ -22,7 +22,7 @@ export default function GoogleAnalytics({GA_MEASUREMENT_ID} : {GA_MEASUREMENT_ID
 
     useEffect(() => {
         const url = pathname;
-        if(myCookie === 'bb'){
+        if(myCookie === 'ssc'){
             pageview(GA_MEASUREMENT_ID, url);
         }   
     }, [pathname]);
