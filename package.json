@@ -13,7 +13,8 @@
         "blobshape": "^1.0.0",
         "bright": "^0.8.5",
         "markdown-to-jsx": "^7.4.5",
-        "next": "14.2.5",
+        "next": "^14.2.7",
+        "@next/third-parties": "^14.2.7",
         "react": "18.3.1",
         "react-dom": "18.3.1",
         "unique-names-generator": "^4.7.1"
