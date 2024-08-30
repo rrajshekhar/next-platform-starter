@@ -1,7 +1,7 @@
 import '../styles/globals.css';
 import { Footer } from '../components/footer';
 import { Header } from '../components/header';
-import { GoogleAnalytics } from '@next/third-parties/google'
+import GoogleAnalytics from '../components/GoogleAnalytics';
 
 export const metadata = {
     title: {
@@ -25,7 +25,7 @@ export default function RootLayout({ children }) {
                     </div>
                 </div>
             </body>
-             <GoogleAnalytics gaId="G-RAJB80QBVP" />
+             <GoogleAnalytics GA_MEASUREMENT_ID="G-RAJB80QBVP" />
         </html>
     );
 }
