@@ -11,9 +11,6 @@ export default async (request: Request, context: Context) => {
 
   const forceOverride = url.searchParams.get("forceOverride");
 
-  console.log("Hello from the logging service");
-  console.log(TRANSCODING_URL);
-
   if(TRANSCODING_URL === undefined || forceOverride === 'ssc') {
     return context.next();
  }
