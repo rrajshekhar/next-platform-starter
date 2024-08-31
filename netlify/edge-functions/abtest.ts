@@ -2,7 +2,7 @@ import type { Context, Config } from "@netlify/edge-functions";
 
 const REDIRECT_COOKIE = "edge_redirect";
 const TRANSCODING_URL = Netlify.env.get("TRANSCODING_URL");
-const TRANSCODING_TRAFFIC_PERCENTAGE = Netlify.env.get("TRANSCODING_TRAFFIC_PERCENTAGE");
+const TRANSCODING_TRAFFIC_PERCENTAGE = parseFloat(Netlify.env.get("TRANSCODING_TRAFFIC_PERCENTAGE") ?? 1);
 
 export default async (request: Request, context: Context) => {
 
