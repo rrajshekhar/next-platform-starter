@@ -1,14 +1,15 @@
 import type { Context, Config } from "@netlify/edge-functions";
 
 const REDIRECT_COOKIE = "edge_redirect";
-const TRANSCODING_URL = Netlify.env.get("TRANSCODING_URL") || "/";
+const TRANSCODING_URL = Netlify.env.get("TRANSCODING_URL");
 const TRANSCODING_TRAFFIC_PERCENTAGE = Netlify.env.get("TRANSCODING_TRAFFIC_PERCENTAGE");
 
 export default async (request: Request, context: Context) => {
 
   const url = new URL(request.url);
   const path = url.pathname;
-  const redirectUrl = new URL(path, TRANSCODING_URL).toString();
+  let redirectUrl = TRANSCODING_URL !=='undefined' ? new URL(path, TRANSCODING_URL).toString() : 
+  new URL(path, url).toString();
   const forceOverride = url.searchParams.get("forceOverride");
 
   if(forceOverride === 'bb') {
