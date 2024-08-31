@@ -9,7 +9,7 @@ export default async (request: Request, context: Context) => {
   const url = new URL(request.url);
   const path = url.pathname;
   let redirectUrl = TRANSCODING_URL !=='undefined' ? new URL(path, TRANSCODING_URL).toString() : 
-  new URL(path, url).toString();
+  new URL(path, request.url).toString();
   const forceOverride = url.searchParams.get("forceOverride");
 
   if(forceOverride === 'bb') {
