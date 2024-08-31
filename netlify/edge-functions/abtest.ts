@@ -8,16 +8,15 @@ export default async (request: Request, context: Context) => {
 
   const url = new URL(request.url);
   const path = url.pathname;
-  let redirectUrl = TRANSCODING_URL !=='undefined' ? new URL(path, TRANSCODING_URL).toString() : 
-  new URL(path, request.url).toString();
+  const redirectUrl =new URL(path, TRANSCODING_URL).toString();
   const forceOverride = url.searchParams.get("forceOverride");
 
-  if(forceOverride === 'bb') {
-     return Response.redirect(redirectUrl, 301)
-  }
+  if(TRANSCODING_URL === 'undefined' || forceOverride === 'ssc') {
+    return context.next();
+ }
 
-  if(forceOverride === 'ssc') {
-     return context.next();
+  if(forceOverride === 'bb') {
+     return Response.redirect(redirectUrl, 301);
   }
 
   const redirectCookie = context.cookies.get(REDIRECT_COOKIE);
@@ -31,14 +30,13 @@ export default async (request: Request, context: Context) => {
     name: REDIRECT_COOKIE,
     value: isTrancoded,
   });
+  
   return redirect(isTrancoded, redirectUrl, context);
 };
 
 function redirect(isTranscoded: string, redirectUrl: string, context: Context) {
-  return isTranscoded === 'bb'
-    ? Response.redirect(redirectUrl, 301)
-    : context.next();
-}
+  return isTranscoded === 'bb' ? Response.redirect(redirectUrl, 301) : context.next();
+ }
 
 export const config: Config = {
   path: "/*",
