@@ -8,15 +8,14 @@ export default async (request: Request, context: Context) => {
 
   const url = new URL(request.url);
   const path = url.pathname;
-  const redirectUrl =new URL(path, TRANSCODING_URL).toString();
-  const forceOverride = url.searchParams.get("forceOverride");
 
-  console.log('test url');
-  console.log(TRANSCODING_URL);
+  const forceOverride = url.searchParams.get("forceOverride");
 
   if(TRANSCODING_URL === 'undefined' || forceOverride === 'ssc') {
     return context.next();
  }
+ 
+  const redirectUrl =new URL(path, TRANSCODING_URL).toString();
 
   if(forceOverride === 'bb') {
      return Response.redirect(redirectUrl, 301);
