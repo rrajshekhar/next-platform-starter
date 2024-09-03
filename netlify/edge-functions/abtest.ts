@@ -1,6 +1,6 @@
 import type { Context, Config } from "@netlify/edge-functions";
 
-const REDIRECT_COOKIE = "edge_proxy";
+const PROXY_COOKIE = "edge_proxy";
 const TRANSCODING_URL = Netlify.env.get("TRANSCODING_URL");
 const TRANSCODING_TRAFFIC_PERCENTAGE = parseFloat(Netlify.env.get("TRANSCODING_TRAFFIC_PERCENTAGE") ?? 1);
 const UNSUPPORTED_LANGUAGES = ['de','pt-br','es','fr'];
@@ -12,14 +12,14 @@ export default async (request: Request, context: Context) => {
   const path = url.pathname;
  
    const forceOverride = url.searchParams.get("forceOverride");
-   const redirectCookie = context.cookies.get(REDIRECT_COOKIE);
+   const redirectCookie = context.cookies.get(PROXY_COOKIE);
 
   if(TRANSCODING_URL === undefined || forceOverride === 'ssc' || isValidLanguagePath(path)) {
     console.log('entered path logic', path)
     if(redirectCookie){
       context.cookies.set({
-        name: REDIRECT_COOKIE,
-        value: 'ssc',
+        name: PROXY_COOKIE,
+        value: "ssc",
       });
     }
     return context.next();
@@ -34,15 +34,15 @@ export default async (request: Request, context: Context) => {
   if(redirectCookie) {
       return redirect(redirectCookie, redirectUrl, context);
   }
-  const isTrancoded = Math.random() <= TRANSCODING_TRAFFIC_PERCENTAGE ? "ssc" : "bb";
+  const trafficRouting = Math.random() <= TRANSCODING_TRAFFIC_PERCENTAGE ? "ssc" : "bb";
 
   context.cookies.set({
-    name: REDIRECT_COOKIE,
-    value: isTrancoded,
+    name: PROXY_COOKIE,
+    value: trafficRouting,
     domain : 'ssc-preview-edge.netlify.app'
   });
 
-  return redirect(isTrancoded, redirectUrl, context);
+  return redirect(trafficRouting, redirectUrl, context);
 };
 
 async function redirect(isTranscoded: string, redirectUrl: string, context: Context) {
