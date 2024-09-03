@@ -10,6 +10,8 @@ export default async (request: Request, context: Context) => {
   const url = new URL(request.url);
   const path = url.pathname;
 
+  console.log('path is',path);
+
    const forceOverride = url.searchParams.get("forceOverride");
 
   if(TRANSCODING_URL === undefined || forceOverride === 'ssc') {
@@ -32,7 +34,7 @@ export default async (request: Request, context: Context) => {
   context.cookies.set({
     name: REDIRECT_COOKIE,
     value: isTrancoded,
-    domain: "*example.com"
+    domain: "*silversea.com"
   });
 
   return redirect(isTrancoded, redirectUrl, context);
