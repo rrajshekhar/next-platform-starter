@@ -34,7 +34,6 @@ export default async (request: Request, context: Context) => {
   context.cookies.set({
     name: REDIRECT_COOKIE,
     value: isTrancoded,
-    domain: "*silversea.com"
   });
 
   return redirect(isTrancoded, redirectUrl, context);
