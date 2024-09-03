@@ -18,7 +18,7 @@ export default async (request: Request, context: Context) => {
   const redirectUrl =new URL(path, TRANSCODING_URL).toString();
 
   if(forceOverride === 'bb') {
-     return Response.redirect(redirectUrl, 301);
+     return Response.redirect(redirectUrl, 302);
   }
 
   const redirectCookie = context.cookies.get(REDIRECT_COOKIE);
@@ -31,13 +31,14 @@ export default async (request: Request, context: Context) => {
   context.cookies.set({
     name: REDIRECT_COOKIE,
     value: isTrancoded,
+    domain: "silversea.com"
   });
 
   return redirect(isTrancoded, redirectUrl, context);
 };
 
 function redirect(isTranscoded: string, redirectUrl: string, context: Context) {
-  return isTranscoded === 'bb' ? Response.redirect(redirectUrl, 301) : context.next();
+  return isTranscoded === 'bb' ? Response.redirect(redirectUrl, 302) : context.next();
  }
 
 export const config: Config = {
