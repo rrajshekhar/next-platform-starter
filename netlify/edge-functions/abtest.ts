@@ -6,14 +6,17 @@ import type { Context, Config } from "@netlify/edge-functions";
 
 export default async (request: Request, context: Context) => {
 
+
   const url = new URL(request.url);
   const path = url.pathname;
+
+  const redirectUrl =new URL(path, 'https://www-silversea.uat.bbhosted.com/').toString();
 
   const headers = {
     'Content-Type' : 'text/html'
   };
 
-  const response = await fetch('https://www-silversea.uat.bbhosted.com/', {
+  const response = await fetch(redirectUrl, {
     headers: headers,
   });
   return response;
