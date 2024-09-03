@@ -11,10 +11,17 @@ export default async (request: Request, context: Context) => {
   const path = url.pathname;
 
   console.log('path is',path);
-
+  
    const forceOverride = url.searchParams.get("forceOverride");
+   const redirectCookie = context.cookies.get(REDIRECT_COOKIE);
 
-  if(TRANSCODING_URL === undefined || forceOverride === 'ssc') {
+  if(TRANSCODING_URL === undefined || forceOverride === 'ssc' || path.startsWith('de')|| path.startsWith('pt-br') || path.startsWith('es') || path.startsWith('fr')) {
+    if(redirectCookie){
+      context.cookies.set({
+        name: REDIRECT_COOKIE,
+        value: 'ssc',
+      });
+    }
     return context.next();
  }
 
@@ -23,8 +30,6 @@ export default async (request: Request, context: Context) => {
   if(forceOverride === 'bb') {
      return redirect('bb', redirectUrl, context);
   }
-
-  const redirectCookie = context.cookies.get(REDIRECT_COOKIE);
 
   if(redirectCookie) {
       return redirect(redirectCookie, redirectUrl, context);
