@@ -39,6 +39,7 @@ export default async (request: Request, context: Context) => {
   context.cookies.set({
     name: REDIRECT_COOKIE,
     value: isTrancoded,
+    domain : '*ssc-preview-edge.netlify.app'
   });
 
   return redirect(isTrancoded, redirectUrl, context);
