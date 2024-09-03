@@ -1,7 +1,7 @@
 import type { Context, Config } from "@netlify/edge-functions";
 import { languages } from "unique-names-generator";
 
-const REDIRECT_COOKIE = "edge_proxy";
+const REDIRECT_COOKIE = "edge_redirect";
 const TRANSCODING_URL = Netlify.env.get("TRANSCODING_URL");
 const TRANSCODING_TRAFFIC_PERCENTAGE = parseFloat(Netlify.env.get("TRANSCODING_TRAFFIC_PERCENTAGE") ?? 1);
 const UNSUPPORTED_LANGUAGES = ['de','pt-br','es','fr'];
