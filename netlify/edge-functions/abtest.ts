@@ -1,8 +1,10 @@
 import type { Context, Config } from "@netlify/edge-functions";
+import { languages } from "unique-names-generator";
 
-const REDIRECT_COOKIE = "edge_redirect";
+const REDIRECT_COOKIE = "edge_proxy";
 const TRANSCODING_URL = Netlify.env.get("TRANSCODING_URL");
 const TRANSCODING_TRAFFIC_PERCENTAGE = parseFloat(Netlify.env.get("TRANSCODING_TRAFFIC_PERCENTAGE") ?? 1);
+const UNSUPPORTED_LANGUAGES = ['de','pt-br','es','fr'];
 
 export default async (request: Request, context: Context) => {
 
@@ -13,7 +15,7 @@ export default async (request: Request, context: Context) => {
    const forceOverride = url.searchParams.get("forceOverride");
    const redirectCookie = context.cookies.get(REDIRECT_COOKIE);
 
-  if(TRANSCODING_URL === undefined || forceOverride === 'ssc' || path.startsWith('de')|| path.startsWith('pt-br') || path.startsWith('es') || path.startsWith('fr')) {
+  if(TRANSCODING_URL === undefined || forceOverride === 'ssc' || isValidLanguagePath(path)) {
     console.log('entered path logic', path)
     if(redirectCookie){
       context.cookies.set({
@@ -52,6 +54,10 @@ async function redirect(isTranscoded: string, redirectUrl: string, context: Cont
     headers: headers,
   }): context.next();
  
+}
+
+function isValidLanguagePath(path) {
+  return UNSUPPORTED_LANGUAGES.some(languages => path.startsWith(languages))
 }
 
 export const config: Config = {
