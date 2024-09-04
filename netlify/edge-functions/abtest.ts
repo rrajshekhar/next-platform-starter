@@ -60,7 +60,6 @@ function validateLanguage(path) {
 }
 
 export const config: Config = {
-  path: "/*",
-  excludedPath: ["/*.svg"]
+  path: "/*"
 };
 
