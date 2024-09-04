@@ -17,7 +17,7 @@ export default async (request: Request, context: Context) => {
    const redirectCookie = context.cookies.get(PROXY_COOKIE);
 
   if(TRANSCODING_URL === undefined || forceOverride === 'ssc' || isValidLanguagePath(path)) {
-    console.log('entered path logic', path)
+    console.log('entered path logic', path);
     if(redirectCookie){
       context.cookies.set({
         name: PROXY_COOKIE,
@@ -59,6 +59,7 @@ async function redirect(isTranscoded: string, redirectUrl: string, context: Cont
 }
 
 function isValidLanguagePath(path) {
+  console.log('enter valid language');
   return UNSUPPORTED_LANGUAGES.some(languages => path.startsWith(languages))
 }
 
