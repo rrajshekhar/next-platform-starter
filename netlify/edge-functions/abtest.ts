@@ -11,13 +11,10 @@ export default async (request: Request, context: Context) => {
   const url = new URL(request.url);
   const path = url.pathname;
 
-  console.log("Path is");
- 
-   const forceOverride = url.searchParams.get("forceOverride");
-   const redirectCookie = context.cookies.get(PROXY_COOKIE);
+  const forceOverride = url.searchParams.get("forceOverride");
+  const redirectCookie = context.cookies.get(PROXY_COOKIE);
 
-  if(TRANSCODING_URL === undefined || forceOverride === 'ssc' || isValidLanguagePath(path)) {
-    console.log('entered path logic', path);
+  if(TRANSCODING_URL === undefined || validateLanguage(path) || forceOverride === 'ssc') {
     if(redirectCookie){
       context.cookies.set({
         name: PROXY_COOKIE,
@@ -58,13 +55,12 @@ async function redirect(isTranscoded: string, redirectUrl: string, context: Cont
  
 }
 
-function isValidLanguagePath(path) {
-  console.log('enter valid language',UNSUPPORTED_LANGUAGES.some(languages => path.startsWith(languages)));
-  console.log('Path is', path);
+function validateLanguage(path) {
   return UNSUPPORTED_LANGUAGES.some(languages => path.startsWith(languages))
 }
 
 export const config: Config = {
   path: "/*",
+  excludedPath: ["/*.svg"]
 };
 
