@@ -10,6 +10,8 @@ export default async (request: Request, context: Context) => {
 
   const url = new URL(request.url);
   const path = url.pathname;
+
+  console.log("Path is");
  
    const forceOverride = url.searchParams.get("forceOverride");
    const redirectCookie = context.cookies.get(PROXY_COOKIE);
