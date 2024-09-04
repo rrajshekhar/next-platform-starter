@@ -59,7 +59,7 @@ async function redirect(isTranscoded: string, redirectUrl: string, context: Cont
 }
 
 function isValidLanguagePath(path) {
-  console.log('enter valid language');
+  console.log('enter valid language',UNSUPPORTED_LANGUAGES.some(languages => path.startsWith(languages)));
   return UNSUPPORTED_LANGUAGES.some(languages => path.startsWith(languages))
 }
 
