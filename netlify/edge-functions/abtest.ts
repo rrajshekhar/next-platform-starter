@@ -3,7 +3,7 @@ import type { Context, Config } from "@netlify/edge-functions";
 const PROXY_COOKIE = "edge_proxy";
 const TRANSCODING_URL = Netlify.env.get("TRANSCODING_URL");
 const TRANSCODING_TRAFFIC_PERCENTAGE = parseFloat(Netlify.env.get("TRANSCODING_TRAFFIC_PERCENTAGE") ?? 1);
-const UNSUPPORTED_LANGUAGES = ['de','pt-br','es','fr'];
+const UNSUPPORTED_LANGUAGES = ['/de','/pt-br','/es','/fr'];
 
 export default async (request: Request, context: Context) => {
 
