@@ -27,11 +27,11 @@ export default async (request: Request, context: Context) => {
   const proxyUrl =new URL(path, TRANSCODING_URL).toString();
 
   if(forceOverride === 'bb') {
-     return redirect('bb', proxyUrl, context);
+     return redirect('bb', proxyUrl, context , path);
   }
 
   if(proxyCookie) {
-      return redirect(proxyCookie, proxyUrl, context);
+      return redirect(proxyCookie, proxyUrl, context, path);
   }
   const trafficRouting = Math.random() <= TRANSCODING_TRAFFIC_PERCENTAGE ? "ssc" : "bb";
 
@@ -47,10 +47,10 @@ export default async (request: Request, context: Context) => {
     expires: expireTime
   });
 
-  return redirect(trafficRouting, proxyUrl, context);
+  return redirect(trafficRouting, proxyUrl, context, path);
 };
 
-async function redirect(isTranscoded: string, redirectUrl: string, context: Context) {
+async function redirect(isTranscoded: string, redirectUrl: string, context: Context, path : string) {
   // const headers = {
   //   'Content-Type' : 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7'
   // };
