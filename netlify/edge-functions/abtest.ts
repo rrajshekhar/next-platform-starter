@@ -21,8 +21,8 @@ export default async (request: Request, context: Context) => {
         name: PROXY_COOKIE,
         expiry : 1
       });
-      context.cookies.delete(PROXY_COOKIE);
     }
+    context.cookies.delete(PROXY_COOKIE);
     console.log(proxyCookie);
     console.log(context.cookies.get(PROXY_COOKIE));
     return context.next();
