@@ -48,6 +48,7 @@ export default async (request: Request, context: Context) => {
       expires: expireTime
     });
   }
+  return context.next();
 };
 
 
