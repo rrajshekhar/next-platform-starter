@@ -58,7 +58,7 @@ async function redirect(isTranscoded: string, redirectUrl: string, context: Cont
 async function testProxy(redirectUrl: string) {
   const response = await fetch(redirectUrl);
   return new Response(response.body, {
-    headers: { "content-type": "text/*" },
+    headers: { "content-type": "text/html;charset=utf-8" },
   });
 }
 
