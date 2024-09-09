@@ -27,11 +27,11 @@ export default async (request: Request, context: Context) => {
   const proxyUrl =new URL(path, TRANSCODING_URL).toString();
 
   if(forceOverride === 'bb') {
-     return redirect('bb', proxyUrl, context , path);
+     return redirect('bb', proxyUrl, context);
   }
 
   if(proxyCookie) {
-      return redirect(proxyCookie, proxyUrl, context, path);
+      return redirect(proxyCookie, proxyUrl, context);
   }
   const trafficRouting = Math.random() <= TRANSCODING_TRAFFIC_PERCENTAGE ? "ssc" : "bb";
 
@@ -47,22 +47,17 @@ export default async (request: Request, context: Context) => {
     expires: expireTime
   });
 
-  return redirect(trafficRouting, proxyUrl, context, path);
+  return redirect(trafficRouting, proxyUrl, context);
 };
 
-async function redirect(isTranscoded: string, redirectUrl: string, context: Context, path : string) {
-  // const headers = {
-  //   'Content-Type' : 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7'
-  // };
+async function redirect(isTranscoded: string, redirectUrl: string, context: Context) {
+   const headers = {
+     'Content-Type' : 'text/plain'
+  };
 
-  return isTranscoded === 'bb' ? new Response(null, {
-    status: 200,
-    headers: {
-      'Location': redirectUrl,
-      'X-Replaced-Path': path,
-      'Content-Type': 'text/plain',
-    },
-  }) : context.next();
+  return isTranscoded === 'bb' ? await fetch(redirectUrl, {
+    headers: headers,
+  }): context.next();
  
 }
 
