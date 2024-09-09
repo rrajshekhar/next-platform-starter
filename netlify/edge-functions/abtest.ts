@@ -1,5 +1,4 @@
 import type { Context, Config } from "@netlify/edge-functions";
-import { cookies } from "next/headers";
 
 const PROXY_COOKIE = "edge_proxy";
 const TRANSCODING_URL = Netlify.env.get("TRANSCODING_URL");
@@ -17,16 +16,20 @@ export default async (request: Request, context: Context) => {
 
   if(forceOverride === 'ssc') {
     if(proxyCookie){
+      context.cookies.set({
+        name: PROXY_COOKIE,
+        expiry : 1
+      });
       context.cookies.delete(PROXY_COOKIE);
     }
+    console.log(proxyCookie);
+    console.log(context.cookies.get(PROXY_COOKIE));
     return context.next();
  }
 
   if(proxyCookie) {
       return context.next();
   }
-
-  console.log('this is messed up');
 
   const trafficRouting = Math.random() <= TRANSCODING_TRAFFIC_PERCENTAGE ? "ssc" : "bb";
 
@@ -44,6 +47,15 @@ export default async (request: Request, context: Context) => {
     });
   }
 };
+
+async function redirect(isTranscoded: string, redirectUrl: string, context: Context, path :string) {
+   const headers = {
+     'Content-Type' : 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7'
+  };
+
+  return isTranscoded === 'bb' ? new URL(path, TRANSCODING_URL): context.next();
+ 
+}
 
 function validateLanguage(path) {
   return UNSUPPORTED_LANGUAGES.some(languages => path.startsWith(languages))
