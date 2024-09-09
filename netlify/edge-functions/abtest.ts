@@ -15,8 +15,12 @@ export default async (request: Request, context: Context) => {
   const proxyCookie = context.cookies.get(PROXY_COOKIE);
 
   if(forceOverride === 'ssc') {
-    if(proxyCookie === 'bb'){
-      context.cookies.delete(PROXY_COOKIE);
+    if(proxyCookie){
+      context.cookies.set({
+        name: PROXY_COOKIE,
+        domain : '.ssc-preview-edge.netlify.app',
+        expires: new Date(Date.now()-86400000).toUTCString()
+      });
     }
     console.log(proxyCookie);
     console.log(context.cookies.get(PROXY_COOKIE));
