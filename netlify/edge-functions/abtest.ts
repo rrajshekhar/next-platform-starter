@@ -10,55 +10,69 @@ export default async (request: Request, context: Context) => {
 
   const url = new URL(request.url);
   const path = url.pathname;
-  const now = new Date();
-  const time = now.getTime();
-  const expireTime = time + 1000*36000;
-  const pastExpiryTime = time - 1000*36000;
 
   const forceOverride = url.searchParams.get("forceOverride");
   const proxyCookie = context.cookies.get(PROXY_COOKIE);
 
-  if(forceOverride === 'ssc') {
+  if(TRANSCODING_URL === undefined || validateLanguage(path) || forceOverride === 'ssc') {
     if(proxyCookie){
       context.cookies.set({
         name: PROXY_COOKIE,
-        expiry : pastExpiryTime
+        value: "ssc",
       });
     }
-    console.log(proxyCookie);
-    console.log(context.cookies.get(PROXY_COOKIE));
     return context.next();
  }
 
-  if(proxyCookie) {
-      return context.next();
+  const proxyUrl =new URL(path, TRANSCODING_URL).toString();
+
+  if(forceOverride === 'bb') {
+     return redirect('bb', proxyUrl, context);
   }
 
+  if(proxyCookie) {
+      return redirect(proxyCookie, proxyUrl, context);
+  }
   const trafficRouting = Math.random() <= TRANSCODING_TRAFFIC_PERCENTAGE ? "ssc" : "bb";
 
+  const now = new Date();
+  const time = now.getTime();
+  const expireTime = time + 1000*36000;
 
-  
 
+  context.cookies.set({
+    name: PROXY_COOKIE,
+    value: trafficRouting,
+    domain : '.ssc-preview-edge.netlify.app',
+    expires: expireTime
+  });
 
-  if(forceOverride === 'bb' || trafficRouting === 'bb') {
-    context.cookies.set({
-      name: PROXY_COOKIE,
-      value: trafficRouting,
-      domain : 'ssc-preview-edge.netlify.app',
-      expires: expireTime
-    });
-  }
-  return context.next();
+  return redirect(trafficRouting, proxyUrl, context);
 };
 
+async function redirect(isTranscoded: string, redirectUrl: string, context: Context) {
+  return isTranscoded === 'bb' ? await testProxy(redirectUrl): context.next();
+ 
+}
 
+async function testProxy(redirectUrl: string) {
+  const response = await fetch(redirectUrl);
+  return new Response(response.body, {
+    headers: { "content-type": "text/html" },
+  });
+}
 
 function validateLanguage(path) {
   return UNSUPPORTED_LANGUAGES.some(languages => path.startsWith(languages))
 }
 
 export const config: Config = {
-  path: "/*",
-  excludedPath: ["/_next*"]
+  path: "/*"
 };
+
+
+
+
+
+
 
