@@ -17,20 +17,15 @@ export default async (request: Request, context: Context) => {
 
   if(forceOverride === 'ssc') {
     if(proxyCookie){
-      context.cookies.set({
-        name: PROXY_COOKIE,
-        expiry : 1
-      });
+      context.cookies.delete(PROXY_COOKIE);
     }
-    context.cookies.delete(PROXY_COOKIE);
-    console.log(proxyCookie);
-    console.log(context.cookies.get(PROXY_COOKIE));
-    return context.next();
  }
 
   if(proxyCookie) {
       return context.next();
   }
+
+  console.log('this is messed up');
 
   const trafficRouting = Math.random() <= TRANSCODING_TRAFFIC_PERCENTAGE ? "ssc" : "bb";
 
