@@ -54,7 +54,7 @@ export default async (request: Request, context: Context) => {
 
 async function redirect(isTranscoded: string, redirectUrl: string, context: Context) {
   return isTranscoded === 'bb' ? 
-  Response.redirect(redirectUrl, 307): context.next();
+  Response.redirect(redirectUrl, 304): context.next();
  
 }
 
