@@ -34,11 +34,17 @@ export default async (request: Request, context: Context) => {
   const proxyUrl =new URL(path, TRANSCODING_URL).toString();
 
   if(forceOverride === 'bb') {
-     return redirect('bb', proxyUrl, context);
+    context.cookies.set({
+      name: PROXY_COOKIE,
+      value: "bb",
+      domain : '.silversea.com',
+      expires: expireTime
+    });
+    return context.next();
   }
 
   if(proxyCookie) {
-      return redirect(proxyCookie, proxyUrl, context);
+      return context.next();
   }
   const trafficRouting = Math.random() <= TRANSCODING_TRAFFIC_PERCENTAGE ? "ssc" : "bb";
 
@@ -49,14 +55,14 @@ export default async (request: Request, context: Context) => {
     expires: expireTime
   });
 
-  return redirect(trafficRouting, proxyUrl, context);
+  return context.next();
 };
 
-async function redirect(isTranscoded: string, redirectUrl: string, context: Context) {
-  return isTranscoded === 'bb' ? 
-  context.redirect(redirectUrl, 200) : context.next();
+// async function redirect(isTranscoded: string, redirectUrl: string, context: Context) {
+//   return isTranscoded === 'bb' ? 
+//   context.redirect(redirectUrl, 200): context.next();
  
-}
+//}
 
 function validateLanguage(path) {
   return UNSUPPORTED_LANGUAGES.some(languages => path.startsWith(languages))
