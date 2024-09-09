@@ -52,7 +52,8 @@ export default async (request: Request, context: Context) => {
 
 async function redirect(isTranscoded: string, redirectUrl: string, context: Context) {
    const headers = {
-     'Content-Type' : 'text/plain'
+     'Content-Type' : 'text/html',
+     'X-Replaced-Path' : 'test'
   };
 
   return isTranscoded === 'bb' ? await fetch(redirectUrl, {
