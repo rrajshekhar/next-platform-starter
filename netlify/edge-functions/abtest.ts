@@ -10,6 +10,10 @@ export default async (request: Request, context: Context) => {
 
   const url = new URL(request.url);
   const path = url.pathname;
+  const now = new Date();
+  const time = now.getTime();
+  const expireTime = time + 1000*36000;
+  const pastExpiryTime = time - 1000*36000;
 
   const forceOverride = url.searchParams.get("forceOverride");
   const proxyCookie = context.cookies.get(PROXY_COOKIE);
@@ -18,9 +22,8 @@ export default async (request: Request, context: Context) => {
     if(proxyCookie){
       context.cookies.set({
         name: PROXY_COOKIE,
-        expiry : 1
+        expiry : pastExpiryTime
       });
-      context.cookies.delete(PROXY_COOKIE);
     }
     console.log(proxyCookie);
     console.log(context.cookies.get(PROXY_COOKIE));
@@ -33,9 +36,8 @@ export default async (request: Request, context: Context) => {
 
   const trafficRouting = Math.random() <= TRANSCODING_TRAFFIC_PERCENTAGE ? "ssc" : "bb";
 
-  const now = new Date();
-  const time = now.getTime();
-  const expireTime = time + 1000*36000;
+
+  
 
 
   if(forceOverride === 'bb' || trafficRouting === 'bb') {
@@ -48,14 +50,7 @@ export default async (request: Request, context: Context) => {
   }
 };
 
-async function redirect(isTranscoded: string, redirectUrl: string, context: Context, path :string) {
-   const headers = {
-     'Content-Type' : 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7'
-  };
 
-  return isTranscoded === 'bb' ? new URL(path, TRANSCODING_URL): context.next();
- 
-}
 
 function validateLanguage(path) {
   return UNSUPPORTED_LANGUAGES.some(languages => path.startsWith(languages))
