@@ -6,5 +6,6 @@
 # named `is_legacy` or `my_other_cookie`
 [[redirects]]
 from = "/*"
-to = "https://www-silversea.uat.bbhosted.com/:splat"
+to = "https://www-silversea.uat.bbhosted.com/"
 status = 200
+conditions = {Cookie = ["edge_proxy","bb"]}
