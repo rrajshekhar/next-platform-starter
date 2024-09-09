@@ -53,13 +53,8 @@ export default async (request: Request, context: Context) => {
 };
 
 async function redirect(isTranscoded: string, redirectUrl: string, context: Context) {
-  const headers = {
-    'Content-Type' : 'text/html'
-  };
-
-  return isTranscoded === 'bb' ? await fetch(redirectUrl, {
-    headers: headers,
-  }): context.next();
+  return isTranscoded === 'bb' ? 
+  Response.redirect(redirectUrl, 200): context.next();
  
 }
 
