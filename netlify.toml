@@ -6,5 +6,5 @@
 # named `is_legacy` or `my_other_cookie`
 [[redirects]]
 from = "/*"
-to = "https://www-silversea.uat.bbhosted.com/"
+to = "https://www-silversea.uat.bbhosted.com/:splat"
 status = 200
