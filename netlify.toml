@@ -7,5 +7,5 @@
 [[redirects]]
 from = "/*"
 to = "https://www-silversea.uat.bbhosted.com/"
-status = 200
+status = 302
 conditions = {Cookie = ["edge_proxy","bb"]}
