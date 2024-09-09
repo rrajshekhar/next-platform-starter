@@ -15,7 +15,7 @@ export default async (request: Request, context: Context) => {
   const proxyCookie = context.cookies.get(PROXY_COOKIE);
 
   if(forceOverride === 'ssc') {
-    if(proxyCookie){
+    if(proxyCookie === 'bb'){
       context.cookies.delete(PROXY_COOKIE);
     }
     console.log(proxyCookie);
