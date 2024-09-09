@@ -14,18 +14,11 @@ export default async (request: Request, context: Context) => {
   const forceOverride = url.searchParams.get("forceOverride");
   const proxyCookie = context.cookies.get(PROXY_COOKIE);
 
-   // Sample for expiry
-   const now = new Date();
-   const time = now.getTime();
-   const expireTime = time + 1000*36000;
-
   if(TRANSCODING_URL === undefined || validateLanguage(path) || forceOverride === 'ssc') {
     if(proxyCookie){
       context.cookies.set({
         name: PROXY_COOKIE,
         value: "ssc",
-        domain : '.silversea.com',
-        expires: expireTime
       });
     }
     return context.next();
@@ -42,10 +35,15 @@ export default async (request: Request, context: Context) => {
   }
   const trafficRouting = Math.random() <= TRANSCODING_TRAFFIC_PERCENTAGE ? "ssc" : "bb";
 
+  const now = new Date();
+  const time = now.getTime();
+  const expireTime = time + 1000*36000;
+
+
   context.cookies.set({
     name: PROXY_COOKIE,
     value: trafficRouting,
-    domain : '.silversea.com',
+    domain : '.ssc-preview-edge.netlify.app',
     expires: expireTime
   });
 
@@ -53,8 +51,13 @@ export default async (request: Request, context: Context) => {
 };
 
 async function redirect(isTranscoded: string, redirectUrl: string, context: Context) {
-  return isTranscoded === 'bb' ? 
-  Response.redirect(redirectUrl, 304): context.next();
+  const headers = {
+    'Content-Type' : 'text/*'
+  };
+
+  return isTranscoded === 'bb' ? await fetch(redirectUrl, {
+    headers: headers,
+  }): context.next();
  
 }
 
