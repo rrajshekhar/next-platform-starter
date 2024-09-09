@@ -18,7 +18,7 @@ export default async (request: Request, context: Context) => {
     if(proxyCookie){
       context.cookies.set({
         name: PROXY_COOKIE,
-        domain : '.ssc-preview-edge.netlify.app'
+        expiry : 1
       });
     }
     console.log(proxyCookie);
