@@ -14,25 +14,21 @@ export default async (request: Request, context: Context) => {
   const forceOverride = url.searchParams.get("forceOverride");
   const proxyCookie = context.cookies.get(PROXY_COOKIE);
 
-  if(TRANSCODING_URL === undefined || validateLanguage(path) || forceOverride === 'ssc') {
-    if(proxyCookie){
-      context.cookies.set({
-        name: PROXY_COOKIE,
-        value: "ssc",
-      });
-    }
-    return context.next();
- }
+//   if(TRANSCODING_URL === undefined || validateLanguage(path) || forceOverride === 'ssc') {
+//     if(proxyCookie){
+//       context.cookies.set({
+//         name: PROXY_COOKIE,
+//         value: "ssc",
+//       });
+//     }
+//     return context.next();
+//  }
 
-  const proxyUrl =new URL(path, TRANSCODING_URL).toString();
-
-  if(forceOverride === 'bb') {
-     return redirect('bb', proxyUrl, context);
-  }
-
+  
   if(proxyCookie) {
-      return redirect(proxyCookie, proxyUrl, context);
+      return context.next();
   }
+
   const trafficRouting = Math.random() <= TRANSCODING_TRAFFIC_PERCENTAGE ? "ssc" : "bb";
 
   const now = new Date();
@@ -40,32 +36,23 @@ export default async (request: Request, context: Context) => {
   const expireTime = time + 1000*36000;
 
 
-  context.cookies.set({
-    name: PROXY_COOKIE,
-    value: trafficRouting,
-    domain : '.ssc-preview-edge.netlify.app',
-    expires: expireTime
-  });
-
-  return redirect(trafficRouting, proxyUrl, context);
+  if(forceOverride === 'bb' || trafficRouting === 'bb') {
+    context.cookies.set({
+      name: PROXY_COOKIE,
+      value: trafficRouting,
+      domain : '.ssc-preview-edge.netlify.app',
+      expires: expireTime
+    });
+  }
 };
 
-async function redirect(isTranscoded: string, redirectUrl: string, context: Context) {
-  return isTranscoded === 'bb' ? await testProxy(redirectUrl): context.next();
- 
-}
+async function redirect(isTranscoded: string, redirectUrl: string, context: Context, path :string) {
+   const headers = {
+     'Content-Type' : 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7'
+  };
 
-async function testProxy(redirectUrl: string) {
-  const headers = {
-    'Content-Type' : 'text/html',
-    'X-Replaced-Path' : 'test'
- };
-  const response = await fetch(redirectUrl, {
-    headers: headers,
-  });
-  const newResponse = new Response(response.body, response);
-  newResponse.headers.set('X-Redirected-From','/');
-  return newResponse;
+  return isTranscoded === 'bb' ? new URL(path, TRANSCODING_URL): context.next();
+ 
 }
 
 function validateLanguage(path) {
