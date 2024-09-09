@@ -14,17 +14,13 @@ export default async (request: Request, context: Context) => {
   const forceOverride = url.searchParams.get("forceOverride");
   const proxyCookie = context.cookies.get(PROXY_COOKIE);
 
-//   if(TRANSCODING_URL === undefined || validateLanguage(path) || forceOverride === 'ssc') {
-//     if(proxyCookie){
-//       context.cookies.set({
-//         name: PROXY_COOKIE,
-//         value: "ssc",
-//       });
-//     }
-//     return context.next();
-//  }
+  if(forceOverride === 'ssc') {
+    if(proxyCookie){
+      context.cookies.delete(PROXY_COOKIE);
+    }
+    return context.next();
+ }
 
-  
   if(proxyCookie) {
       return context.next();
   }
