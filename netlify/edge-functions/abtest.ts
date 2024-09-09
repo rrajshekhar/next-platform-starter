@@ -24,7 +24,6 @@ export default async (request: Request, context: Context) => {
       context.cookies.set({
         name: PROXY_COOKIE,
         value: "ssc",
-        domain : '.silversea.com',
         expires: expireTime
       });
     }
@@ -37,7 +36,6 @@ export default async (request: Request, context: Context) => {
     context.cookies.set({
       name: PROXY_COOKIE,
       value: "bb",
-      domain : '.silversea.com',
       expires: expireTime
     });
     return context.next();
@@ -51,7 +49,6 @@ export default async (request: Request, context: Context) => {
   context.cookies.set({
     name: PROXY_COOKIE,
     value: trafficRouting,
-    domain : '.silversea.com',
     expires: expireTime
   });
 
