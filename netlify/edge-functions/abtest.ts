@@ -51,15 +51,21 @@ export default async (request: Request, context: Context) => {
 };
 
 async function redirect(isTranscoded: string, redirectUrl: string, context: Context) {
-   const headers = {
-     'Content-Type' : 'text/html',
-     'X-Replaced-Path' : 'test'
-  };
-
-  return isTranscoded === 'bb' ? await fetch(redirectUrl, {
-    headers: headers,
-  }): context.next();
+  return isTranscoded === 'bb' ? await testProxy(redirectUrl): context.next();
  
+}
+
+async function testProxy(redirectUrl: string) {
+  const headers = {
+    'Content-Type' : 'text/html',
+    'X-Replaced-Path' : 'test'
+ };
+  const response = await fetch(redirectUrl, {
+    headers: headers,
+  });
+  const newResponse = new Response(response.body, response);
+  newResponse.headers.set('X-Redirected-From','/');
+  return newResponse;
 }
 
 function validateLanguage(path) {
