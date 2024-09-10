@@ -23,7 +23,7 @@ export default async (request: Request, context: Context) => {
     return context.next();
   }
   // If cookie exists and no override, continue
-  if (proxyCookie && !forceOverride) {
+  if (proxyCookie) {
     return context.next();
   }
   // Determine traffic routing
