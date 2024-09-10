@@ -23,11 +23,10 @@ export default async (request: Request, context: Context) => {
     if(proxyCookie){
       context.cookies.set({
         name: PROXY_COOKIE,
-        value: "ssc",
-        expires: expireTime
+        expires: new Date(0)
       });
     }
-    return context.next();
+    return;
  }
 
   const proxyUrl =new URL(path, TRANSCODING_URL).toString();
