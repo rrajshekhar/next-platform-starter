@@ -1,6 +1,3 @@
-
-
-
 import type { Context, Config } from "@netlify/edge-functions";
 const PROXY_COOKIE = "edge_proxy";
 const TRAFFIC_PERCENTAGE = parseFloat(Netlify.env.get("TRANSCODING_TRAFFIC_PERCENTAGE") ?? “0.5”);
@@ -17,7 +14,7 @@ export default async (request: Request, context: Context) => {
     if (proxyCookie) {
       context.cookies.delete(PROXY_COOKIE);
     }
-    const response = await context.next({ sendConditionalRequest: true })
+    const response = await context.next({ sendConditionalRequest: true });
     return response;
   }
   
@@ -30,7 +27,7 @@ export default async (request: Request, context: Context) => {
       expires: new Date(expireTime),
     });
   }};
-  const response = await context.next({ sendConditionalRequest: true })
+  const response = await context.next({ sendConditionalRequest: true });
   return response;
 };
 
