@@ -58,7 +58,7 @@ async function redirect(isTranscoded: string, redirectUrl: string, context: Cont
     'Content-Type' : 'text/html'
   };
 
-  return isTranscoded === 'bb' ? await testProxy(redirectUrl): context.next();
+  return isTranscoded === 'bb' ? new URL(redirectUrl): context.next();
  
 }
 
