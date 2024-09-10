@@ -14,6 +14,7 @@ export default async (request: Request, context: Context) => {
     console.log('path is', path);
     if (override === 'ssc') {
       context.cookies.delete(PROXY_COOKIE);
+      console.log('proxy cookie is', context.cookies.get(PROXY_COOKIE));
     } else if (override === 'bb') {
       context.cookies.set({
         name: PROXY_COOKIE,
