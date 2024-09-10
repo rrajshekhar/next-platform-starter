@@ -1,6 +1,6 @@
 import type { Context, Config } from "@netlify/edge-functions";
 const PROXY_COOKIE = "edge_proxy";
-const TRAFFIC_PERCENTAGE = parseFloat(Netlify.env.get("TRANSCODING_TRAFFIC_PERCENTAGE") ?? “0.5”);
+const TRAFFIC_PERCENTAGE = Netlify.env.get("TRANSCODING_TRAFFIC_PERCENTAGE");
 const UNSUPPORTED_LANGUAGES = ['/de','/pt-br','/es','/fr'];
 export default async (request: Request, context: Context) => {
   const url = new URL(request.url);
