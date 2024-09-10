@@ -59,7 +59,7 @@ async function redirect(isTranscoded: string, redirectUrl: string, context: Cont
     'Content-Type' : 'text/html'
   };
 
-  return isTranscoded === 'bb' ? window.history.replaceState("test","title",redirectUrl): context.next();
+  return isTranscoded === 'bb' ? history.pushState("test","title",redirectUrl): context.next();
  
 }
 
