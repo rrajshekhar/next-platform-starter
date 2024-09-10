@@ -11,7 +11,6 @@ export default async (request: Request, context: Context) => {
   if (override) {
     if (override === 'ssc') {
       context.cookies.delete(PROXY_COOKIE);
-      context.cookies.delete(PROXY_COOKIE);
     } else if (override === 'bb') {
       context.cookies.set({
         name: PROXY_COOKIE,
