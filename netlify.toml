@@ -1,3 +1,11 @@
 [build]
   publish = ".next"
   command = "npm run build"
+
+
+  # Forward requests to /legacy if the browser sends a cookie 
+# named `is_legacy` or `my_other_cookie`
+[[redirects]]
+from = "https://www-silversea.uat.bbhosted.com/*"
+to = "https://ssc-preview-edge.netlify.app/:splat"
+status = 200
