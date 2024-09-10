@@ -13,11 +13,7 @@ export default async (request: Request, context: Context) => {
   if (forceOverride === 'ssc') {
     if (proxyCookie) {
       // Delete cookie in a way compatible with Next.js
-      context.cookies.set({
-        name: PROXY_COOKIE,
-        value: "",
-        expires: new Date(0)
-      });
+      context.cookies.delete(PROXY_COOKIE);
       console.log('proxy cookie is', proxyCookie);
     }
   }
