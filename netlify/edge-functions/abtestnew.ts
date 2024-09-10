@@ -64,7 +64,8 @@ async function testUrl(redirectUrl: string) {
   const targetOrigin = new URL(redirectUrl).origin;
   const response = await fetch(redirectUrl);
   let body = await response.text();
-  body = body.replace(/(src|href)="\/(?!\/)/g, `$1="${targetOrigin}/`);
+  const baseTag = '<base href="${targetUrl}">';
+  body = body.replace('<head>','<head>${baseTag}');
   return new Response(body, {
     headers: response.headers,
     status: 200
