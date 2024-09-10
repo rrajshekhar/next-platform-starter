@@ -10,6 +10,7 @@ export default async (request: Request, context: Context) => {
   const proxyCookie = context.cookies.get(PROXY_COOKIE);
   const forceOverride = url.searchParams.get("forceOverride");
 
+  console.log('request url is ', url);
   console.log('path is', path);
 
   if (validateLanguage(path) || forceOverride === 'ssc') {
