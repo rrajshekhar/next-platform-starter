@@ -2,3 +2,6 @@
   publish = ".next"
   command = "npm run build"
 
+[build.processing] 
+	skip_processing = true
+
