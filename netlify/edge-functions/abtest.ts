@@ -14,7 +14,8 @@ export default async (request: Request, context: Context) => {
     if (proxyCookie) {
       context.cookies.delete(PROXY_COOKIE);
     }
-    return;
+    const response = await context.next({ sendConditionalRequest: true });
+    return response;
   }
   
   if(!proxyCookie) {
