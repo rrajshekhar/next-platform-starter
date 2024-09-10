@@ -41,6 +41,5 @@ export default async (request: Request, context: Context) => {
   return context.next();
 };
 export const config: Config = {
-  path: "/*",
-  excludedPath: ["/_next/*"]
+  path: "/*"
 };
