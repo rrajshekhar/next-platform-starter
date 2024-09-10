@@ -1,2 +1,2 @@
-/* https://www-silversea.uat.bbhosted.com/:splat 200 Cookie=edge_proxy
-/* https://www-silversea.uat.bbhosted.com/:splat 200?forceOverride=bb
+/* https://example.com/:splat 200 Cookie=edge_proxy
+/* https://example.com/:splat 200?forceOverride=bb
