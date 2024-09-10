@@ -24,6 +24,7 @@ export default async (request: Request, context: Context) => {
     context.cookies.set({
       name: PROXY_COOKIE,
       value: trafficRouting,
+      domain: 'ssc-preview-edge.netlify.app',
       expires: new Date(expireTime),
     });
   }};
