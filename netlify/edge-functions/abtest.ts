@@ -1,5 +1,5 @@
 import type { Context, Config } from "@netlify/edge-functions";
-const PROXY_COOKIE = "test_proxy";
+const PROXY_COOKIE = "edge_proxy";
 const TRAFFIC_PERCENTAGE = parseFloat(Netlify.env.get("TRAFFIC_PERCENTAGE") ?? "0.1");
 export default async (request: Request, context: Context) => {
   const url = new URL(request.url);
