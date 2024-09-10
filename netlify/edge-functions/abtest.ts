@@ -14,8 +14,7 @@ export default async (request: Request, context: Context) => {
     if (proxyCookie) {
       context.cookies.delete(PROXY_COOKIE);
     }
-    const response = await context.next({ sendConditionalRequest: true });
-    return response;
+    return;
   }
   
   if(!proxyCookie) {
@@ -27,8 +26,7 @@ export default async (request: Request, context: Context) => {
       expires: new Date(expireTime),
     });
   }};
-  const response = await context.next({ sendConditionalRequest: true });
-  return response;
+  return;
 };
 
 function validateLanguage(path) {
