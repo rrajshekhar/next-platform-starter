@@ -41,9 +41,6 @@ export default async (request: Request, context: Context) => {
   }
   const trafficRouting = Math.random() <= TRANSCODING_TRAFFIC_PERCENTAGE ? "ssc" : "bb";
 
- 
-
-
   context.cookies.set({
     name: PROXY_COOKIE,
     value: trafficRouting,
