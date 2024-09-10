@@ -38,7 +38,7 @@ export default async (request: Request, context: Context) => {
 async function silentRedirect(isTranscoded: string, redirectUrl: string, context: Context) {
   if (isTranscoded === 'bb') {
     try {
-      const response = await fetch(redirectUrl);
+      const response = await fetch(redirectUrl,{mode: 'no-cors'});
       const contentType = response.headers.get('content-type');
       const body = await response.text();
       return new Response(body, {
