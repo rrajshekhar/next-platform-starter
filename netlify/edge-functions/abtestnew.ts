@@ -76,7 +76,7 @@ function validateLanguage(path) {
 }
 
 export const config: Config = {
-  caches: "manual"
+  caches: "manual",
   path: "/*"
 };
 
