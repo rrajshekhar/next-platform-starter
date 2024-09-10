@@ -5,31 +5,36 @@ export default async (request: Request, context: Context) => {
   const url = new URL(request.url);
   const now = new Date();
   const expireTime = now.getTime() + 1000 * 36000;
-  const proxyCookie = context.cookies.get(PROXY_COOKIE);
   const override = url.searchParams.get("forceOverride");
-  // Handle override for 'test1'
-  if (override === 'ssc') {
-    if (proxyCookie) {
-      // Delete cookie in a way compatible with Next.js
+  const currentCookie = context.cookies.get(PROXY_COOKIE);
+  // Handle overrides
+  if (override) {
+    if (override === 'ssc') {
       context.cookies.delete(PROXY_COOKIE);
+    } else if (override === 'bb') {
+      context.cookies.set({
+        name: PROXY_COOKIE,
+        value: "bb",
+        expires: new Date(expireTime),
+        path: '/',
+      });
     }
+    // After handling the override, we'll let the request continue
     return context.next();
   }
-  
-
-  if(!proxyCookie){
-  // Determine traffic routing
-  const trafficRouting = override || (Math.random() <= TRAFFIC_PERCENTAGE ? "ssc" : "bb");
-  // Set cookie for Test2 or when explicitly overridden
-  if (trafficRouting === 'bb' || override === 'bb') {
-    context.cookies.set({
-      name: PROXY_COOKIE,
-      value: trafficRouting,
-      expires: new Date(expireTime),
-      path: '/',
-    });
+  // Normal traffic routing (only if no override and no existing cookie)
+  if (!currentCookie) {
+    const trafficRouting = Math.random() <= TRAFFIC_PERCENTAGE ? "ssc" : "bb";
+    if (trafficRouting === 'bb') {
+      context.cookies.set({
+        name: PROXY_COOKIE,
+        value: trafficRouting,
+        expires: new Date(expireTime),
+        path: '/',
+      });
+    }
   }
-}
+  // Continue with the request
   return context.next();
 };
 export const config: Config = {
