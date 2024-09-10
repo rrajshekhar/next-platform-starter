@@ -55,7 +55,7 @@ async function redirect(isTranscoded: string, redirectUrl: string, context: Cont
     'Content-Type' : 'text/html'
   };
 
-  return isTranscoded === 'bb' ? new URL('/edge', request.url): context.next();
+  return isTranscoded === 'bb' ? new URL('/', request.url): context.next();
  
 }
 
