@@ -14,7 +14,7 @@ export default async (request: Request, context: Context) => {
   console.log('path is', path);
 
   if (validateLanguage(path) || forceOverride === 'ssc') {
-    if (proxyCookie) {
+    while (proxyCookie) {
       context.cookies.delete(PROXY_COOKIE);
       console.log('proxy cookie is', proxyCookie);
     }
