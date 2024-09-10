@@ -1,4 +1,7 @@
 [build]
   publish = ".next"
   command = "npm run build"
+[build.processing.images]
+  compress = false
+
 
