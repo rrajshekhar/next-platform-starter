@@ -11,12 +11,7 @@ export default async (request: Request, context: Context) => {
   if (override === 'Test1') {
     if (proxyCookie) {
       // Delete cookie in a way compatible with Next.js
-      context.cookies.set({
-        name: PROXY_COOKIE,
-        value: "",
-        expires: new Date(0),
-        path: '/',
-      });
+      context.cookies.delete(PROXY_COOKIE);
     }
     return context.next();
   }
