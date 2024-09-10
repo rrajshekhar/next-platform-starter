@@ -33,7 +33,13 @@ export default async (request: Request, context: Context) => {
   const proxyUrl =new URL(path, TRANSCODING_URL).toString();
 
   if(forceOverride === 'bb') {
-     return redirect('bb', proxyUrl, context);
+    context.cookies.set({
+        name: PROXY_COOKIE,
+        value: 'bb',
+        expires: expireTime,
+        path: '/',
+      });
+      return;
   }
 
   if(proxyCookie) {
