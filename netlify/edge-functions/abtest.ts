@@ -1,6 +1,5 @@
 import type { Context, Config } from "@netlify/edge-functions";
 
-
 const PROXY_COOKIE = "edge_proxy";
 const TRANSCODING_URL = Netlify.env.get("TRANSCODING_URL");
 const TRANSCODING_TRAFFIC_PERCENTAGE = parseFloat(Netlify.env.get("TRANSCODING_TRAFFIC_PERCENTAGE") ?? 1);
@@ -59,8 +58,19 @@ async function redirect(isTranscoded: string, redirectUrl: string, context: Cont
     'Content-Type' : 'text/html'
   };
 
-  return isTranscoded === 'bb' ? history.pushState("test","title",redirectUrl): context.next();
+  return isTranscoded === 'bb' ? await testProxy(redirectUrl): context.next();
  
+}
+
+async function testProxy(redirectUrl: string) {
+  const response = await fetch(redirectUrl);
+  let body = await response.text();
+  return new Response(body, {
+    headers: {
+        'Cache-Control': 'no-store, must-revalidate',
+         'expires': '0'},
+    status: 200
+  });
 }
 
 function validateLanguage(path) {
