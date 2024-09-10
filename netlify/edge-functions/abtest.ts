@@ -23,16 +23,17 @@ export default async (request: Request, context: Context) => {
   }
   
   // Determine traffic routing
+  if(!proxyCookie) {
   const trafficRouting = forceOverride || (Math.random() <= TRAFFIC_PERCENTAGE ? "ssc" : "bb");
   // Set cookie for Test2 or when explicitly overridden
-  if ((trafficRouting === 'bb' || forceOverride === 'bb') && !proxyCookie) {
+  if ((trafficRouting === 'bb' || forceOverride === 'bb')) {
     console.log('entered set');
     context.cookies.set({
       name: PROXY_COOKIE,
       value: trafficRouting,
       expires: new Date(expireTime),
     });
-  }
+  }};
 };
 export const config: Config = {
   path: "/*",
