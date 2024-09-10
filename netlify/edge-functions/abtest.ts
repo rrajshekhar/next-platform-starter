@@ -24,7 +24,7 @@ export default async (request: Request, context: Context) => {
       context.cookies.set({
         name: PROXY_COOKIE,
         expires: new Date(0),
-        path:'/'
+        path:'/',
       });
     }
     return;
@@ -45,7 +45,7 @@ export default async (request: Request, context: Context) => {
     name: PROXY_COOKIE,
     value: trafficRouting,
     expires: expireTime,
-    path: '/'
+    path: '/',
   });
 
   return redirect(trafficRouting, proxyUrl, context);
