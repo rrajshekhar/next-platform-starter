@@ -20,12 +20,8 @@ export default async (request: Request, context: Context) => {
       });
       console.log('proxy cookie is', proxyCookie);
     }
-    return context.next();
   }
-  // If cookie exists and no override, continue
-  if (proxyCookie) {
-    return context.next();
-  }
+  
   // Determine traffic routing
   const trafficRouting = forceOverride || (Math.random() <= TRAFFIC_PERCENTAGE ? "ssc" : "bb");
   // Set cookie for Test2 or when explicitly overridden
@@ -37,7 +33,6 @@ export default async (request: Request, context: Context) => {
       expires: new Date(expireTime),
     });
   }
-  return context.next();
 };
 export const config: Config = {
   path: "/*",
