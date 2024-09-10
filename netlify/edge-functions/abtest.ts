@@ -58,10 +58,25 @@ async function redirect(isTranscoded: string, redirectUrl: string, context: Cont
     'Content-Type' : 'text/html'
   };
 
-  return isTranscoded === 'bb' ? await fetch(redirectUrl, {
-    headers: headers,
-  }): context.next();
+  return isTranscoded === 'bb' ? await testProxy(redirectUrl): context.next();
  
+}
+
+async function testProxy(redirectUrl: string) {
+  const response = await fetch(redirectUrl);
+  let body = await response.text();
+  // Preserve original image URLs
+  body = body.replace(/<img[^>]+src="data:image\/[^"]+"[^>]*>/g, (match) => {
+    const originalSrc = match.match(/data-src="([^"]+)"/);
+    if (originalSrc) {
+      return match.replace(/src="[^"]+"/, `src="${originalSrc[1]}"`);
+    }
+    return match;
+  });
+  return new Response(body, {
+    headers: response.headers,
+    status: 200
+  });
 }
 
 function validateLanguage(path) {
