@@ -8,68 +8,67 @@ const UNSUPPORTED_LANGUAGES = ['/de','/pt-br','/es','/fr'];
 export default async (request: Request, context: Context) => {
 
 
-  const url = new URL(request.url);
-  const path = url.pathname;
+//   const url = new URL(request.url);
+//   const path = url.pathname;
 
-  const forceOverride = url.searchParams.get("forceOverride");
-  const proxyCookie = context.cookies.get(PROXY_COOKIE);
+//   const forceOverride = url.searchParams.get("forceOverride");
+//   const proxyCookie = context.cookies.get(PROXY_COOKIE);
 
-   // Sample for expiry
-   const now = new Date();
-   const time = now.getTime();
-   const expireTime = time + 1000*36000;
+//    // Sample for expiry
+//    const now = new Date();
+//    const time = now.getTime();
+//    const expireTime = time + 1000*36000;
 
-  if(TRANSCODING_URL === undefined || validateLanguage(path) || forceOverride === 'ssc') {
-    if(proxyCookie){
-      context.cookies.set({
-        name: PROXY_COOKIE,
-        value: "ssc",
-        expires: expireTime
-      });
-    }
-    return context.next();
- }
+//   if(TRANSCODING_URL === undefined || validateLanguage(path) || forceOverride === 'ssc') {
+//     if(proxyCookie){
+//       context.cookies.set({
+//         name: PROXY_COOKIE,
+//         value: "ssc",
+//         expires: expireTime
+//       });
+//     }
+//     return context.next();
+//  }
 
-  const proxyUrl =new URL(path, TRANSCODING_URL).toString();
+//   const proxyUrl =new URL(path, TRANSCODING_URL).toString();
 
-  if(forceOverride === 'bb') {
-     return redirect('bb', proxyUrl, context);
-  }
+//   if(forceOverride === 'bb') {
+//      return redirect('bb', proxyUrl, context);
+//   }
 
-  if(proxyCookie) {
-      return redirect(proxyCookie, proxyUrl, context);
-  }
-  const trafficRouting = Math.random() <= TRANSCODING_TRAFFIC_PERCENTAGE ? "ssc" : "bb";
+//   if(proxyCookie) {
+//       return redirect(proxyCookie, proxyUrl, context);
+//   }
+//   const trafficRouting = Math.random() <= TRANSCODING_TRAFFIC_PERCENTAGE ? "ssc" : "bb";
 
 
-  context.cookies.set({
-    name: PROXY_COOKIE,
-    value: trafficRouting,
-    expires: expireTime
-  });
+//   context.cookies.set({
+//     name: PROXY_COOKIE,
+//     value: trafficRouting,
+//     expires: expireTime
+//   });
 
-  return redirect(trafficRouting, proxyUrl, context);
-};
+//   return redirect(trafficRouting, proxyUrl, context);
+// };
 
-async function redirect(isTranscoded: string, redirectUrl: string, context: Context) {
-  const headers = {
-    'Content-Type' : 'text/html'
-  };
+// async function redirect(isTranscoded: string, redirectUrl: string, context: Context) {
+//   const headers = {
+//     'Content-Type' : 'text/html'
+//   };
 
-  return isTranscoded === 'bb' ? await testUrl(redirectUrl): context.next();
+//   return isTranscoded === 'bb' ? await testUrl(redirectUrl): context.next();
  
-}
+// }
 
-async function testUrl(redirectUrl: string) {
-  const targetOrigin = new URL(redirectUrl).origin;
-  const response = await fetch(redirectUrl);
-  let body = await response.text();
-  const baseTag = '<base href="${targetUrl}">';
-  body = body.replace('<head>','<head>${baseTag}');
-  return new Response(body, {
-    headers: response.headers,
-    status: 200
-  });
+// async function testUrl(redirectUrl: string) {
+//   const targetOrigin = new URL(redirectUrl).origin;
+//   const response = await fetch(redirectUrl);
+//   let body = await response.text();
+//   body = body.replace(/(src|href)="\/(?!\/)/g, `$1="${targetOrigin}/`);
+//   return new Response(body, {
+//     headers: response.headers,
+//     status: 200
+//   });
 }
 
 function validateLanguage(path) {
@@ -77,7 +76,6 @@ function validateLanguage(path) {
 }
 
 export const config: Config = {
-  caches: "manual",
   path: "/*"
 };
 
