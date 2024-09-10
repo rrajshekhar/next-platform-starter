@@ -1,5 +1,6 @@
 import type { Context, Config } from "@netlify/edge-functions";
 
+
 const PROXY_COOKIE = "edge_proxy";
 const TRANSCODING_URL = Netlify.env.get("TRANSCODING_URL");
 const TRANSCODING_TRAFFIC_PERCENTAGE = parseFloat(Netlify.env.get("TRANSCODING_TRAFFIC_PERCENTAGE") ?? 1);
@@ -23,8 +24,7 @@ export default async (request: Request, context: Context) => {
     if(proxyCookie){
       context.cookies.set({
         name: PROXY_COOKIE,
-        value: "ssc",
-        expires: expireTime
+        expires: new Date(0)
       });
     }
     return context.next();
@@ -33,16 +33,13 @@ export default async (request: Request, context: Context) => {
   const proxyUrl =new URL(path, TRANSCODING_URL).toString();
 
   if(forceOverride === 'bb') {
-     return redirect('bb', proxyUrl, context);
+     return redirect('bb', proxyUrl, context,request);
   }
 
   if(proxyCookie) {
-      return redirect(proxyCookie, proxyUrl, context);
+      return redirect(proxyCookie, proxyUrl, context,request);
   }
   const trafficRouting = Math.random() <= TRANSCODING_TRAFFIC_PERCENTAGE ? "ssc" : "bb";
-
- 
-
 
   context.cookies.set({
     name: PROXY_COOKIE,
@@ -50,27 +47,16 @@ export default async (request: Request, context: Context) => {
     expires: expireTime
   });
 
-  return redirect(trafficRouting, proxyUrl, context);
+  return redirect(trafficRouting, proxyUrl, context,request);
 };
 
-async function redirect(isTranscoded: string, redirectUrl: string, context: Context) {
+async function redirect(isTranscoded: string, redirectUrl: string, context: Context, request: Request) {
   const headers = {
     'Content-Type' : 'text/html'
   };
 
-  return isTranscoded === 'bb' ? await testProxy(redirectUrl): context.next();
+  return isTranscoded === 'bb' ? new URL('/edge', request.url): context.next();
  
-}
-
-async function testProxy(redirectUrl: string) {
-  const response = await fetch(redirectUrl);
-  let body = await response.text();
-  return new Response(body, {
-    headers: {
-        'Cache-Control': 'no-store, must-revalidate',
-         'expires': '0'},
-    status: 200
-  });
 }
 
 function validateLanguage(path) {
