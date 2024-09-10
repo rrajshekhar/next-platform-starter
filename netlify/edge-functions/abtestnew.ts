@@ -41,6 +41,7 @@ export default async (request: Request, context: Context) => {
   }
   const trafficRouting = Math.random() <= TRANSCODING_TRAFFIC_PERCENTAGE ? "ssc" : "bb";
 
+
   context.cookies.set({
     name: PROXY_COOKIE,
     value: trafficRouting,
@@ -55,8 +56,19 @@ async function redirect(isTranscoded: string, redirectUrl: string, context: Cont
     'Content-Type' : 'text/html'
   };
 
-  return isTranscoded === 'bb' ? Response.redirect(redirectUrl, 308): context.next();
+  return isTranscoded === 'bb' ? await testUrl(redirectUrl): context.next();
  
+}
+
+async function testUrl(redirectUrl: string) {
+  const targetOrigin = new URL(redirectUrl).origin;
+  const response = await fetch(redirectUrl);
+  let body = await response.text();
+  body = body.replace(/(src|href)="\/(?!\/)/g, `$1="${targetOrigin}/`);
+  return new Response(body, {
+    headers: response.headers,
+    status: 200
+  });
 }
 
 function validateLanguage(path) {
