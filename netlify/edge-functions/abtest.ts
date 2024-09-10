@@ -7,6 +7,8 @@ export default async (request: Request, context: Context) => {
   const expireTime = now.getTime() + 1000 * 36000;
   const proxyCookie = context.cookies.get(PROXY_COOKIE);
   const override = url.searchParams.get("override");
+
+  console.log('path is',url.pathname);
   // Handle override for 'test1'
   if (override === 'Test1') {
     if (proxyCookie) {
@@ -17,6 +19,7 @@ export default async (request: Request, context: Context) => {
         expires: new Date(0),
         path: '/',
       });
+      console.log('proxy cookie is', proxyCookie);
     }
     return context.next();
   }
