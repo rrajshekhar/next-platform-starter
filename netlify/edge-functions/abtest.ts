@@ -20,7 +20,6 @@ export default async (request: Request, context: Context) => {
         name: PROXY_COOKIE,
         value: "bb",
         expires: new Date(expireTime),
-        path: '/',
       });
     }
     // After handling the override, we'll let the request continue
@@ -33,8 +32,7 @@ export default async (request: Request, context: Context) => {
       context.cookies.set({
         name: PROXY_COOKIE,
         value: trafficRouting,
-        expires: new Date(expireTime),
-        path: '/',
+        expires: new Date(expireTime)
       });
     }
   }
@@ -42,7 +40,6 @@ export default async (request: Request, context: Context) => {
   return context.next();
 };
 export const config: Config = {
-  cache: "manual",
   path: "/*",
   excludedPath: ["/_next/*"]
 };
