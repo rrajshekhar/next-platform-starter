@@ -15,10 +15,9 @@ export default async (request: Request, context: Context) => {
     }
     return context.next();
   }
-  // If cookie exists and no override, continue
-  if (proxyCookie && !override) {
-    return context.next();
-  }
+  
+
+  if(!proxyCookie){
   // Determine traffic routing
   const trafficRouting = override || (Math.random() <= TRAFFIC_PERCENTAGE ? "ssc" : "bb");
   // Set cookie for Test2 or when explicitly overridden
@@ -30,6 +29,7 @@ export default async (request: Request, context: Context) => {
       path: '/',
     });
   }
+}
   return context.next();
 };
 export const config: Config = {
