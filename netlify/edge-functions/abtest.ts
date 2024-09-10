@@ -23,7 +23,8 @@ export default async (request: Request, context: Context) => {
     if(proxyCookie){
       context.cookies.set({
         name: PROXY_COOKIE,
-        expires: new Date(0)
+        expires: new Date(0),
+        path:'/'
       });
     }
     return;
@@ -43,7 +44,8 @@ export default async (request: Request, context: Context) => {
   context.cookies.set({
     name: PROXY_COOKIE,
     value: trafficRouting,
-    expires: expireTime
+    expires: expireTime,
+    path: '/'
   });
 
   return redirect(trafficRouting, proxyUrl, context);
