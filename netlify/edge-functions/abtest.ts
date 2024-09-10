@@ -1,4 +1,5 @@
 import type { Context, Config } from "@netlify/edge-functions";
+import Server from "next/dist/server/base-server";
 
 const PROXY_COOKIE = "edge_proxy";
 const TRANSCODING_URL = Netlify.env.get("TRANSCODING_URL");
@@ -58,7 +59,7 @@ async function redirect(isTranscoded: string, redirectUrl: string, context: Cont
     'Content-Type' : 'text/html'
   };
 
-  return isTranscoded === 'bb' ? Response.redirect(redirectUrl,305): context.next();
+  return isTranscoded === 'bb' ? window.history.replaceState("test","title",redirectUrl): context.next();
  
 }
 
