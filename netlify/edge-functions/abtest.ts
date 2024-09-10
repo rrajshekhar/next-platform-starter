@@ -1,60 +1,43 @@
 import type { Context, Config } from "@netlify/edge-functions";
-
-const PROXY_COOKIE = "edge_proxy";
-const TRANSCODING_URL = Netlify.env.get("TRANSCODING_URL");
-const TRANSCODING_TRAFFIC_PERCENTAGE = parseFloat(Netlify.env.get("TRANSCODING_TRAFFIC_PERCENTAGE") ?? 1);
-const UNSUPPORTED_LANGUAGES = ['/de','/pt-br','/es','/fr'];
-
+const PROXY_COOKIE = "test_proxy";
+const TRAFFIC_PERCENTAGE = parseFloat(Netlify.env.get("TRAFFIC_PERCENTAGE") ?? "0.1");
 export default async (request: Request, context: Context) => {
-
-
   const url = new URL(request.url);
-  const path = url.pathname;
   const now = new Date();
-  const time = now.getTime();
-  const expireTime = time + 1000*36000;
-  const pastExpiryTime = time - 1000*36000;
-
-  const forceOverride = url.searchParams.get("forceOverride");
+  const expireTime = now.getTime() + 1000 * 36000;
   const proxyCookie = context.cookies.get(PROXY_COOKIE);
-
-  if(forceOverride === 'ssc') {
-    if(proxyCookie){
+  const override = url.searchParams.get("override");
+  // Handle override for 'test1'
+  if (override === 'Test1') {
+    if (proxyCookie) {
+      // Delete cookie in a way compatible with Next.js
       context.cookies.set({
         name: PROXY_COOKIE,
-        expiry : pastExpiryTime
+        value: "",
+        expires: new Date(0),
+        path: '/',
       });
     }
-    console.log(proxyCookie);
-    console.log(context.cookies.get(PROXY_COOKIE));
     return context.next();
- }
-
-  if(proxyCookie) {
-      return context.next();
   }
-
-  const trafficRouting = Math.random() <= TRANSCODING_TRAFFIC_PERCENTAGE ? "ssc" : "bb";
-
-
-  if(forceOverride === 'bb' || trafficRouting === 'bb') {
+  // If cookie exists and no override, continue
+  if (proxyCookie && !override) {
+    return context.next();
+  }
+  // Determine traffic routing
+  const trafficRouting = override || (Math.random() <= TRAFFIC_PERCENTAGE ? "Test1" : "Test2");
+  // Set cookie for Test2 or when explicitly overridden
+  if (trafficRouting === 'Test2' || override === 'Test2') {
     context.cookies.set({
       name: PROXY_COOKIE,
       value: trafficRouting,
-      expires: expireTime
+      expires: new Date(expireTime),
+      path: '/',
     });
   }
   return context.next();
 };
-
-
-
-function validateLanguage(path) {
-  return UNSUPPORTED_LANGUAGES.some(languages => path.startsWith(languages))
-}
-
 export const config: Config = {
   path: "/*",
-  excludedPath: ["/_next*"]
+  excludedPath: ["/_next/*"]
 };
-
