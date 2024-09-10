@@ -18,8 +18,6 @@ export default async (request: Request, context: Context) => {
       context.cookies.delete(PROXY_COOKIE);
     }
     console.log('proxy cookie is', proxyCookie);
-    context.cookies.delete(PROXY_COOKIE);
-    console.log('proxy cookie is', proxyCookie);
     return context.next();
   }
   
@@ -41,6 +39,6 @@ function validateLanguage(path) {
 }
 
 export const config: Config = {
-  path: "/*",
+  path: "/",
   excludedPath: ["/_next/*","/*.css", "/*.js","/*.svg"]
 };
