@@ -40,5 +40,5 @@ function validateLanguage(path) {
 
 export const config: Config = {
   path: "/*",
-  excludedPath: ["/_next/*","/*.css", "/*.js","/*.svg"]
+  excludedPath: ["/*.css", "/*.js","/*.svg"]
 };
