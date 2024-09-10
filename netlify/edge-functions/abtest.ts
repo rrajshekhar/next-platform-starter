@@ -1,5 +1,5 @@
 import type { Context, Config } from "@netlify/edge-functions";
-import Server from "next/dist/server/base-server";
+
 
 const PROXY_COOKIE = "edge_proxy";
 const TRANSCODING_URL = Netlify.env.get("TRANSCODING_URL");
