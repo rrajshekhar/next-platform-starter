@@ -30,6 +30,7 @@ export default async (request: Request, context: Context) => {
                     expires: expireTime,
                     path: '/',
                 });
+            }
                 if(proxyCookie){
                     context.cookies.set({
                         name: PROXY_COOKIE,
@@ -37,11 +38,8 @@ export default async (request: Request, context: Context) => {
                         expires: new Date(0),
                         path: '/',
                     });
-
                 }
-                return;
-            }   
-        return;
+                return;  
     }
 
     if (forceOverride === newSite) {
@@ -52,6 +50,7 @@ export default async (request: Request, context: Context) => {
                 expires: expireTime,
                 path: '/',
             });
+        }
             if (edgeCookie) {
                 context.cookies.set({
                     name: 'edge_ssc',
@@ -61,8 +60,6 @@ export default async (request: Request, context: Context) => {
                 });
             }
             return;
-        }
-        return;
     } 
 
     const proxyUrl = new URL(path, TRANSCODING_URL).toString();
