@@ -70,25 +70,25 @@ export default async (request: Request, context: Context) => {
 
     console.log('entered the routing logic',request.url,proxyCookie,edgeCookie);
 
-    //const trafficRouting = Math.random() <= TRANSCODING_TRAFFIC_PERCENTAGE ? oldSite : newSite;
+    const trafficRouting = Math.random() <= TRANSCODING_TRAFFIC_PERCENTAGE ? oldSite : newSite;
 
-    //if (trafficRouting === 'bb') {
+    if (trafficRouting === 'bb') {
         context.cookies.set({
             name: PROXY_COOKIE,
             value: 'bb',
             expires: expireTime,
             path: '/',
         });
-    //}
-    // else {
-    //     context.cookies.set({
-    //         name: 'edge_ssc',
-    //         value: trafficRouting,
-    //         expires: expireTime,
-    //         path: '/',
-    //     });
+    }
+    else {
+        context.cookies.set({
+            name: 'edge_ssc',
+            value: trafficRouting,
+            expires: expireTime,
+            path: '/',
+        });
 
-    // }
+    }
 
     return redirect('bb', proxyUrl, context);
 };
