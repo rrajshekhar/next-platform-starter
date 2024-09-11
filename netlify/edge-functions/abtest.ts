@@ -66,7 +66,7 @@ export default async (request: Request, context: Context) => {
         return redirect(proxyCookie, proxyUrl, context);
     }
 
-    console.log('entered the routing logic');
+    console.log('entered the routing logic',request.url);
 
     const trafficRouting = Math.random() <= TRANSCODING_TRAFFIC_PERCENTAGE ? oldSite : newSite;
 
