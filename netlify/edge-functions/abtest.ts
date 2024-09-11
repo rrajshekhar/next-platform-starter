@@ -54,7 +54,7 @@ export default async (request: Request, context: Context) => {
     const proxyUrl = new URL(path, TRANSCODING_URL).toString();
 
     if (proxyCookie || edgeCookie) {
-        return context.next();
+        return redirect(proxyCookie, proxyUrl, context);
     }
 
     const trafficRouting = Math.random() <= TRANSCODING_TRAFFIC_PERCENTAGE ? oldSite : newSite;
@@ -76,19 +76,21 @@ export default async (request: Request, context: Context) => {
         });
 
     }
-    return context.next();
+    
+
+    return redirect(trafficRouting, proxyUrl, context);
 };
 
-// async function redirect(isTranscoded: string, redirectUrl: string, context: Context) {
-//     const headers = {
-//         'Content-Type': 'text/html'
-//     };
+async function redirect(isTranscoded: string, redirectUrl: string, context: Context) {
+    const headers = {
+        'Content-Type': 'text/html'
+    };
 
-//     return isTranscoded === newSite ? await fetch(redirectUrl, {
-//         headers: headers,
-//     }) : context.next();
+    return isTranscoded === newSite ? await fetch(redirectUrl, {
+        headers: headers,
+    }) : context.next();
 
-// }
+}
 
 function validateLanguage(path) {
     return UNSUPPORTED_LANGUAGES.some(languages => path.startsWith(languages))
