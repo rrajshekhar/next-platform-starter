@@ -36,12 +36,12 @@ export default async (request: Request, context: Context) => {
         if (validateLanguage(path) || forceOverride === oldSite) {
             setCookie(context, oldSite, new Date(0));
         }
-        return;
+        return context.next();
     } else {
         if (forceOverride === newSite) {
             setCookie(context, newSite, expireTime);
         }
-        return;
+        return context.next();
     }
 };
 
