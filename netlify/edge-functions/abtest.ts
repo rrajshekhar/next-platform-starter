@@ -38,7 +38,7 @@ export default async (request: Request, context: Context) => {
             setCookies(context, NEW_COOKIE, newSite, expireTime);
         }
         if (oldCookieValue) {
-            setCookies(context, CURRENT_COOKIE,oldSite, new Date(0));
+            setCookies(context, CURRENT_COOKIE, oldSite, new Date(0));
         }
     }
 
@@ -61,13 +61,13 @@ export default async (request: Request, context: Context) => {
     return context.next();
 };
 
-function setCookies(context: Context, cookieName: string, cookieValue: string, expireTime: number|Date) {
-  context.cookies.set({
-    name: cookieName,
-    value: cookieValue,
-    expires: expireTime,
-    path: '/',
-  });
+function setCookies(context: Context, cookieName: string, cookieValue: string, expireTime: number | Date) {
+    context.cookies.set({
+        name: cookieName,
+        value: cookieValue,
+        expires: expireTime,
+        path: '/',
+    });
 }
 
 function validateLanguage(path) {
