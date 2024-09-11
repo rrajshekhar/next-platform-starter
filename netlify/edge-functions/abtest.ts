@@ -5,6 +5,9 @@ const TRANSCODING_URL = Netlify.env.get("TRANSCODING_URL");
 const TRANSCODING_TRAFFIC_PERCENTAGE = parseFloat(Netlify.env.get("TRANSCODING_TRAFFIC_PERCENTAGE") ?? 1);
 const UNSUPPORTED_LANGUAGES = ['/de','/pt-br','/es','/fr'];
 
+const newSite = 'bb';
+const oldSite = 'ssc';
+
 export default async (request: Request, context: Context) => {
 
 
@@ -19,7 +22,7 @@ export default async (request: Request, context: Context) => {
    const time = now.getTime();
    const expireTime = time + 1000*36000;
 
-  if(TRANSCODING_URL === undefined || validateLanguage(path) || forceOverride === 'ssc') {
+  if(TRANSCODING_URL === undefined || validateLanguage(path) || forceOverride === oldSite) {
     if(proxyCookie){
       context.cookies.set({
         name: PROXY_COOKIE,
@@ -32,10 +35,10 @@ export default async (request: Request, context: Context) => {
 
   const proxyUrl =new URL(path, TRANSCODING_URL).toString();
 
-  if(forceOverride === 'bb' && proxyCookie !=='bb') {
+  if(forceOverride === newSite && proxyCookie !== newSite) {
     context.cookies.set({
         name: PROXY_COOKIE,
-        value: 'bb',
+        value: newSite,
         expires: expireTime,
         path: '/',
       });
@@ -45,7 +48,7 @@ export default async (request: Request, context: Context) => {
   if(proxyCookie) {
       return redirect(proxyCookie, proxyUrl, context);
   }
-  const trafficRouting = Math.random() <= TRANSCODING_TRAFFIC_PERCENTAGE ? "ssc" : "bb";
+  const trafficRouting = Math.random() <= TRANSCODING_TRAFFIC_PERCENTAGE ? oldSite : newSite;
 
   context.cookies.set({
     name: PROXY_COOKIE,
@@ -62,7 +65,7 @@ async function redirect(isTranscoded: string, redirectUrl: string, context: Cont
     'Content-Type' : 'text/html'
   };
 
-  return isTranscoded === 'bb' ? await fetch(redirectUrl, {
+  return isTranscoded === newSite ? await fetch(redirectUrl, {
     headers: headers,
   }): context.next();
  
