@@ -107,5 +107,6 @@ function validateLanguage(path) {
 }
 
 export const config: Config = {
-    path: "/*"
+    path: "/*",
+    excludedPath: ["/*.css", "/*.js","/*png","*.webmanifest"]
 };
