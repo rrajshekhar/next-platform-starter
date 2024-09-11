@@ -60,6 +60,7 @@ export default async (request: Request, context: Context) => {
                     path: '/',
                 });
             }
+            return;
         }
         return;
     } 
