@@ -3,77 +3,75 @@ import type { Context, Config } from "@netlify/edge-functions";
 const PROXY_COOKIE = "edge_proxy";
 const TRANSCODING_URL = Netlify.env.get("TRANSCODING_URL");
 const TRANSCODING_TRAFFIC_PERCENTAGE = parseFloat(Netlify.env.get("TRANSCODING_TRAFFIC_PERCENTAGE") ?? 1);
-const UNSUPPORTED_LANGUAGES = ['/de', '/pt-br', '/es', '/fr'];
+const UNSUPPORTED_LANGUAGES = ['/de','/pt-br','/es','/fr'];
 
-const newSite = "bb";
-const oldSite = "ssc";
 export default async (request: Request, context: Context) => {
 
 
-    const url = new URL(request.url);
-    const path = url.pathname;
-    const proxyCookie = context.cookies.get(PROXY_COOKIE);
+  const url = new URL(request.url);
+  const path = url.pathname;
 
-    const proxyUrl = new URL(path, TRANSCODING_URL).toString();
+  const forceOverride = url.searchParams.get("forceOverride");
+  const proxyCookie = context.cookies.get(PROXY_COOKIE);
 
-    // Sample for expiry
-    const now = new Date();
-    const time = now.getTime();
-    const expireTime = time + 1000 * 36000;
+   // Sample for expiry
+   const now = new Date();
+   const time = now.getTime();
+   const expireTime = time + 1000*36000;
 
-    const forceOverride = url.searchParams.get("forceOverride");
-
-    if (!proxyCookie) {
-        if (TRANSCODING_URL === undefined || validateLanguage(path) || forceOverride === oldSite) {
-            return context.next();
-        }
-        const trafficRouting = Math.random() <= TRANSCODING_TRAFFIC_PERCENTAGE ? oldSite : newSite;
-        if (trafficRouting === newSite) {
-            setCookie(context, trafficRouting, expireTime);
-
-        }
-        return redirect(trafficRouting, proxyUrl, context);
+  if(TRANSCODING_URL === undefined || validateLanguage(path) || forceOverride === 'ssc') {
+    if(proxyCookie){
+      context.cookies.set({
+        name: PROXY_COOKIE,
+        expires: new Date(0),
+        path:'/',
+      });
     }
+    return;
+ }
 
-    if (proxyCookie === newSite) {
-        if (validateLanguage(path) || forceOverride === oldSite) {
-            setCookie(context, oldSite, new Date(0));
-        }
-        return;
-    } else {
-        if (forceOverride === newSite) {
-            setCookie(context, newSite, expireTime);
-        }
-        return;
-    }
-};
+  const proxyUrl =new URL(path, TRANSCODING_URL).toString();
 
-
-function setCookie(context: Context, trafficRouting: string, expireTime: number | string | Date) {
+  if(forceOverride === 'bb') {
     context.cookies.set({
         name: PROXY_COOKIE,
-        value: trafficRouting,
+        value: 'bb',
         expires: expireTime,
         path: '/',
-    });
-}
+      });
+      return;
+  }
+
+  if(proxyCookie) {
+      return redirect(proxyCookie, proxyUrl, context);
+  }
+  const trafficRouting = Math.random() <= TRANSCODING_TRAFFIC_PERCENTAGE ? "ssc" : "bb";
+
+  context.cookies.set({
+    name: PROXY_COOKIE,
+    value: trafficRouting,
+    expires: expireTime,
+    path: '/',
+  });
+
+  return redirect(trafficRouting, proxyUrl, context);
+};
 
 async function redirect(isTranscoded: string, redirectUrl: string, context: Context) {
-    const headers = {
-        'Content-Type': 'text/html'
-    };
+  const headers = {
+    'Content-Type' : 'text/html'
+  };
 
-    return isTranscoded === newSite ? await fetch(redirectUrl, {
-        headers: headers,
-    }) : context.next();
-
+  return isTranscoded === 'bb' ? await fetch(redirectUrl, {
+    headers: headers,
+  }): context.next();
+ 
 }
 
 function validateLanguage(path) {
-    return UNSUPPORTED_LANGUAGES.some(languages => path.startsWith(languages))
+  return UNSUPPORTED_LANGUAGES.some(languages => path.startsWith(languages))
 }
 
 export const config: Config = {
-    path: "/*"
+  path: "/*"
 };
-
