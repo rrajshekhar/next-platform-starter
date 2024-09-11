@@ -17,10 +17,9 @@ export default async (request: Request, context: Context) => {
     const forceOverride = url.searchParams.get("forceOverride");
     const proxyCookie = context.cookies.get(PROXY_COOKIE);
 
-    // Sample for expiry
     const now = new Date();
-    const time = now.getTime();
-    const expireTime = time + 1000 * 36000;
+    now.setFullYear(now.getFullYear()+1);
+    const expireTime = now.getTime();
 
     if (TRANSCODING_URL === undefined || validateLanguage(path) || forceOverride === oldSite) {
         if (proxyCookie) {
