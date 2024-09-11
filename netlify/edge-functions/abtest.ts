@@ -66,6 +66,8 @@ export default async (request: Request, context: Context) => {
         return redirect(proxyCookie, proxyUrl, context);
     }
 
+    console.log('entered the routing logic');
+
     const trafficRouting = Math.random() <= TRANSCODING_TRAFFIC_PERCENTAGE ? oldSite : newSite;
 
     if (trafficRouting === 'bb') {
@@ -85,7 +87,6 @@ export default async (request: Request, context: Context) => {
         });
 
     }
-    
 
     return redirect(trafficRouting, proxyUrl, context);
 };
