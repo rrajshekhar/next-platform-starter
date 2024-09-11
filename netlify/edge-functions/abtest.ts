@@ -65,7 +65,7 @@ export default async (request: Request, context: Context) => {
     const proxyUrl = new URL(path, TRANSCODING_URL).toString();
 
     if (proxyCookie || edgeCookie) {
-        return redirect(proxyCookie, proxyUrl, context);
+        return;
     }
 
     const trafficRouting = Math.random() <= TRANSCODING_TRAFFIC_PERCENTAGE ? oldSite : newSite;
@@ -89,7 +89,7 @@ export default async (request: Request, context: Context) => {
     }
     
 
-    return redirect(trafficRouting, proxyUrl, context);
+    return;
 };
 
 async function redirect(isTranscoded: string, redirectUrl: string, context: Context) {
