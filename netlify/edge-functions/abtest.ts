@@ -46,12 +46,15 @@ export default async (request: Request, context: Context) => {
 
     const trafficRouting = Math.random() <= TRANSCODING_TRAFFIC_PERCENTAGE ? oldSite : newSite;
 
-    context.cookies.set({
-        name: PROXY_COOKIE,
-        value: trafficRouting,
-        expires: expireTime,
-        path: '/',
-    });
+    if (trafficRouting === 'bb') {
+        context.cookies.set({
+            name: PROXY_COOKIE,
+            value: trafficRouting,
+            expires: expireTime,
+            path: '/',
+        });
+    }
+    
 
     return redirect(trafficRouting, proxyUrl, context);
 };
