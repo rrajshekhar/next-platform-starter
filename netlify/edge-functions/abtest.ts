@@ -22,7 +22,7 @@ export default async (request: Request, context: Context) => {
     now.setFullYear(now.getFullYear()+1);
     const expireTime = now.getTime();
 
-    if (TRANSCODING_URL === undefined || validateLanguage(path) || forceOverride === oldSite) {
+    if (forceOverride === oldSite) {
         console.log('entered override for ssc',request.url, proxyCookie, edgeCookie);
             if(!edgeCookie){
                 context.cookies.set({
