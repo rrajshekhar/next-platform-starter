@@ -23,7 +23,12 @@ export default async (request: Request, context: Context) => {
 
     if (TRANSCODING_URL === undefined || validateLanguage(path) || forceOverride === oldSite) {
         if (proxyCookie) {
-            context.cookies.delete(PROXY_COOKIE);
+            context.cookies.set({
+                name: 'edge_ssc',
+                value: oldSite,
+                expires: expireTime,
+                path: '/',
+            });
         }
         return;
     }
@@ -36,7 +41,7 @@ export default async (request: Request, context: Context) => {
             path: '/',
         });
         return;
-    }
+    } 
 
     const proxyUrl = new URL(path, TRANSCODING_URL).toString();
 
@@ -53,6 +58,15 @@ export default async (request: Request, context: Context) => {
             expires: expireTime,
             path: '/',
         });
+    }
+    else {
+        context.cookies.set({
+            name: 'edge_ssc',
+            value: trafficRouting,
+            expires: expireTime,
+            path: '/',
+        });
+
     }
     
 
