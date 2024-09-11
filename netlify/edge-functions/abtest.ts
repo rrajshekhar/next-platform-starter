@@ -27,7 +27,7 @@ export default async (request: Request, context: Context) => {
         path:'/',
       });
     }
-    return;
+    return new URL(path, url);
  }
 
   const proxyUrl =new URL(path, TRANSCODING_URL).toString();
