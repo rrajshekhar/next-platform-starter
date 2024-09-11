@@ -28,7 +28,10 @@ export default async (request: Request, context: Context) => {
             return context.next();
         }
         const trafficRouting = Math.random() <= TRANSCODING_TRAFFIC_PERCENTAGE ? oldSite : newSite;
-        setCookie(context, trafficRouting, expireTime);
+        if (trafficRouting === newSite) {
+            setCookie(context, trafficRouting, expireTime);
+
+        }
         return redirect(trafficRouting, proxyUrl, context);
     }
 
