@@ -23,11 +23,7 @@ export default async (request: Request, context: Context) => {
 
     if (TRANSCODING_URL === undefined || validateLanguage(path) || forceOverride === oldSite) {
         if (proxyCookie) {
-            context.cookies.set({
-                name: PROXY_COOKIE,
-                expires: new Date(0),
-                path: '/',
-            });
+            context.cookies.delete(PROXY_COOKIE);
         }
         return;
     }
