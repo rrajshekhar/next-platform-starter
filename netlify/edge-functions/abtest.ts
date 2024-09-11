@@ -90,7 +90,7 @@ export default async (request: Request, context: Context) => {
 
     }
 
-    return redirect('bb', proxyUrl, context);
+    return context.next();
 };
 
 async function redirect(isTranscoded: string, redirectUrl: string, context: Context) {
