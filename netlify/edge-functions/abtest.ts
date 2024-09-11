@@ -30,6 +30,7 @@ export default async (request: Request, context: Context) => {
                 path: '/',
             });
         }
+        return;
     }
 
     if (forceOverride === newSite && proxyCookie !== newSite) {
