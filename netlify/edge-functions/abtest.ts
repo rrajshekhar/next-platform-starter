@@ -39,7 +39,6 @@ export default async (request: Request, context: Context) => {
                         path: '/',
                     });
                 }
-                return;  
     }
 
     if (forceOverride === newSite) {
@@ -59,7 +58,6 @@ export default async (request: Request, context: Context) => {
                     path: '/',
                 });
             }
-            return;
     } 
 
     const proxyUrl = new URL(path, TRANSCODING_URL).toString();
