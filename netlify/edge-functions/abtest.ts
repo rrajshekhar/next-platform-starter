@@ -97,9 +97,9 @@ async function redirect(isTranscoded: string, redirectUrl: string, context: Cont
         'Content-Type': 'text/html'
     };
 
-    return await fetch(redirectUrl, {
+    return isTranscoded === newSite ? await fetch(redirectUrl, {
         headers: headers,
-    });
+    }) : context.next();
 
 }
 
