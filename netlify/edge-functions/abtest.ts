@@ -30,24 +30,37 @@ export default async (request: Request, context: Context) => {
                     expires: expireTime,
                     path: '/',
                 });
-                context.cookies.delete(PROXY_COOKIE);
+                if(proxyCookie){
+                    context.cookies.set({
+                        name: PROXY_COOKIE,
+                        value: newSite,
+                        expires: new Date(0),
+                        path: '/',
+                    });
+
+                }
                 return;
             }   
         return;
     }
 
     if (forceOverride === newSite) {
-        if(!proxyCookie){
+        if (!proxyCookie) {
             context.cookies.set({
                 name: PROXY_COOKIE,
                 value: newSite,
                 expires: expireTime,
                 path: '/',
             });
-            context.cookies.delete('edge_ssc')
-            return;
+            if (edgeCookie) {
+                context.cookies.set({
+                    name: 'edge_ssc',
+                    value: oldSite,
+                    expires: new Date(0),
+                    path: '/',
+                });
+            }
         }
-       
         return;
     } 
 
