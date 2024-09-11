@@ -33,13 +33,13 @@ export default async (request: Request, context: Context) => {
     }
 
     if (proxyCookie === newSite) {
-        if (validateLanguage(path) || forceOverride === 'ssc') {
-            setCookie(context, 'ssc', new Date(0));
+        if (validateLanguage(path) || forceOverride === oldSite) {
+            setCookie(context, oldSite, new Date(0));
         }
         return;
     } else {
-        if (forceOverride === 'bb') {
-            setCookie(context, 'bb', expireTime);
+        if (forceOverride === newSite) {
+            setCookie(context, newSite, expireTime);
         }
         return;
     }
@@ -60,7 +60,7 @@ async function redirect(isTranscoded: string, redirectUrl: string, context: Cont
         'Content-Type': 'text/html'
     };
 
-    return isTranscoded === 'bb' ? await fetch(redirectUrl, {
+    return isTranscoded === newSite ? await fetch(redirectUrl, {
         headers: headers,
     }) : context.next();
 
