@@ -27,12 +27,12 @@ export default async (request: Request, context: Context) => {
         path:'/',
       });
     }
-    return new URL(path, url);
+    return;
  }
 
   const proxyUrl =new URL(path, TRANSCODING_URL).toString();
 
-  if(forceOverride === 'bb') {
+  if(forceOverride === 'bb' && proxyCookie !=='bb') {
     context.cookies.set({
         name: PROXY_COOKIE,
         value: 'bb',
