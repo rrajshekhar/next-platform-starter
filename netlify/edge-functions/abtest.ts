@@ -16,37 +16,45 @@ export default async (request: Request, context: Context) => {
 
     const forceOverride = url.searchParams.get("forceOverride");
     const proxyCookie = context.cookies.get(PROXY_COOKIE);
+    const edgeCookie = context.cookies.get('edge_ssc');
 
     const now = new Date();
     now.setFullYear(now.getFullYear()+1);
     const expireTime = now.getTime();
 
     if (TRANSCODING_URL === undefined || validateLanguage(path) || forceOverride === oldSite) {
-        if (proxyCookie) {
-            context.cookies.set({
-                name: 'edge_ssc',
-                value: oldSite,
-                expires: expireTime,
-                path: '/',
-            });
-        }
+            if(!edgeCookie){
+                context.cookies.set({
+                    name: 'edge_ssc',
+                    value: oldSite,
+                    expires: expireTime,
+                    path: '/',
+                });
+                context.cookies.delete(PROXY_COOKIE);
+                return;
+            }   
         return;
     }
 
-    if (forceOverride === newSite && proxyCookie !== newSite) {
-        context.cookies.set({
-            name: PROXY_COOKIE,
-            value: newSite,
-            expires: expireTime,
-            path: '/',
-        });
+    if (forceOverride === newSite) {
+        if(!proxyCookie){
+            context.cookies.set({
+                name: PROXY_COOKIE,
+                value: newSite,
+                expires: expireTime,
+                path: '/',
+            });
+            context.cookies.delete('edge_ssc')
+            return;
+        }
+       
         return;
     } 
 
     const proxyUrl = new URL(path, TRANSCODING_URL).toString();
 
-    if (proxyCookie) {
-        return redirect(proxyCookie, proxyUrl, context);
+    if (proxyCookie || edgeCookie) {
+        return context.next();
     }
 
     const trafficRouting = Math.random() <= TRANSCODING_TRAFFIC_PERCENTAGE ? oldSite : newSite;
@@ -68,21 +76,19 @@ export default async (request: Request, context: Context) => {
         });
 
     }
-    
-
-    return redirect(trafficRouting, proxyUrl, context);
+    return context.next();
 };
 
-async function redirect(isTranscoded: string, redirectUrl: string, context: Context) {
-    const headers = {
-        'Content-Type': 'text/html'
-    };
+// async function redirect(isTranscoded: string, redirectUrl: string, context: Context) {
+//     const headers = {
+//         'Content-Type': 'text/html'
+//     };
 
-    return isTranscoded === newSite ? await fetch(redirectUrl, {
-        headers: headers,
-    }) : context.next();
+//     return isTranscoded === newSite ? await fetch(redirectUrl, {
+//         headers: headers,
+//     }) : context.next();
 
-}
+// }
 
 function validateLanguage(path) {
     return UNSUPPORTED_LANGUAGES.some(languages => path.startsWith(languages))
