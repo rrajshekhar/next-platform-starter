@@ -23,6 +23,7 @@ export default async (request: Request, context: Context) => {
     const expireTime = now.getTime();
 
     if (TRANSCODING_URL === undefined || validateLanguage(path) || forceOverride === oldSite) {
+        console.log('entered override for ssc',request.url, proxyCookie, edgeCookie);
             if(!edgeCookie){
                 context.cookies.set({
                     name: 'edge_ssc',
@@ -42,6 +43,7 @@ export default async (request: Request, context: Context) => {
     }
 
     if (forceOverride === newSite) {
+        console.log('entered override for bb',request.url, proxyCookie, edgeCookie);
         if (!proxyCookie) {
             context.cookies.set({
                 name: PROXY_COOKIE,
