@@ -103,14 +103,12 @@ const setSegmentCookie = (context: Context, segment: UserSegment) => {
   context.cookies.delete({
     name: cookieNameToDelete,
     path: "/",
-    domain: ".silversea.com"
   });
   context.cookies.set({
     name: cookieNameToSet,
     value: segment,
     expires: expireTime,
     path: "/",
-    domain: ".silversea.com"
   });
 };
 
