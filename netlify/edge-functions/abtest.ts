@@ -58,7 +58,7 @@ export default async (request: Request, context: Context) => {
 
     }
 
-    return context.next({ sendConditionalRequest: true });
+    return context.next(new Request(request));
 };
 
 function setCookies(context: Context, cookieName: string, cookieValue: string, expireTime: number | Date) {
