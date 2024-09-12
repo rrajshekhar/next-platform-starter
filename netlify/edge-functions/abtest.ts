@@ -1,91 +1,139 @@
 import type { Context, Config } from "@netlify/edge-functions";
 
-const CURRENT_COOKIE = "edge_ssc";
-const NEW_COOKIE = "edge_bb";
-const TRANSCODING_TRAFFIC_PERCENTAGE = parseFloat(Netlify.env.get("TRANSCODING_TRAFFIC_PERCENTAGE") ?? 1);
-const UNSUPPORTED_LANGUAGES = ['/de/', '/pt-br/', '/es/', '/fr/'];
+const BB_PROXY_COOKIE = "edge_bb";
+const SSC_PROXY_COOKIE = "edge_ssc";
+const TRANSCODING_URL = Netlify.env.get("TRANSCODING_URL");
+const TRANSCODING_TRAFFIC_PERCENTAGE = parseFloat(
+  Netlify.env.get("TRANSCODING_TRAFFIC_PERCENTAGE") || "1"
+);
 
-const newSite = 'bb';
-const oldSite = 'ssc';
+const BLOCKED_PATHS = [
+  "/de/",
+  "/pt-br/",
+  "/es/",
+  "/fr/",
+  "/de.html",
+  "/pt-br.html",
+  "/es.html",
+  "/fr.html"
+];
 
+type UserSegment = "bb" | "ssc";
+
+// eslint-disable-next-line import/no-unused-modules
 export default async (request: Request, context: Context) => {
+  const url = new URL(request.url);
+  const path = url.pathname;
 
+  const isActive =
+    stringPresent(TRANSCODING_URL) && TRANSCODING_TRAFFIC_PERCENTAGE > 0;
 
-    const url = new URL(request.url);
-    const path = url.pathname;
+  if (!isActive || isExcludedPath(path)) {
+    cleanupProxyCookie(context);
+    return context.next();
+  }
 
-    const forceOverride = url.searchParams.get("forceOverride");
-    const newCookieValue = context.cookies.get(NEW_COOKIE);
-    const oldCookieValue = context.cookies.get(CURRENT_COOKIE);
+  const forcedValue = url.searchParams.get(
+    "forceOverride"
+  ) as UserSegment | null;
+  const segmentFromCookie = getSegmentFromCookie(context);
 
-    const now = new Date();
-    now.setFullYear(now.getFullYear() + 1);
-    const expireTime = now.getTime();
+  const requestSegment =
+    forcedValue || segmentFromCookie || computeRandomSegment();
 
-    if (validateLanguage(path) || forceOverride === oldSite) {
-        //console.log('entered override for ssc',request.url, proxyCookie, edgeCookie);
-        if (!oldCookieValue) {
-            setCookies(context, CURRENT_COOKIE, oldSite, expireTime);
+  if (requestSegment === "bb") {
+    const transcodedUrl = new URL(path, TRANSCODING_URL).toString();
+
+    setSegmentCookie(context, "bb");
+
+    try {
+      return await fetch(transcodedUrl, {
+        headers: {
+          "Content-Type": "text/html"
         }
-        if (newCookieValue) {
-            setCookies(context, NEW_COOKIE, newSite, new Date(0));
-        }
+      });
+    } catch (error) {
+      console.error("Error fetching transcoded URL", error);
+
+      setSegmentCookie(context, "ssc");
+      return context.next();
     }
+  }
 
-    if (forceOverride === newSite) {
-        //console.log('entered override for bb',request.url, proxyCookie, edgeCookie);
-        if (!newCookieValue) {
-            setCookies(context, NEW_COOKIE, newSite, expireTime);
-        }
-        if (oldCookieValue) {
-            setCookies(context, CURRENT_COOKIE, oldSite, new Date(0));
-        }
-    }
-
-    if (newCookieValue || oldCookieValue) {
-        return context.next();
-    }
-
-    //console.log('entered the routing logic',request.url,proxyCookie,edgeCookie);
-
-    const trafficRouting = Math.random() <= TRANSCODING_TRAFFIC_PERCENTAGE ? oldSite : newSite;
-
-    if (trafficRouting === newSite) {
-        setCookies(context, NEW_COOKIE, trafficRouting, expireTime);
-    }
-    else {
-        setCookies(context, CURRENT_COOKIE, trafficRouting, expireTime);
-
-    }
-
-    return redirect(trafficRouting,'https://www-silversea.uat.bbhosted.com', context);
+  // render the default website
+  setSegmentCookie(context, "ssc");
+  return context.next();
 };
 
-async function redirect(isTranscoded: string, redirectUrl: string, context: Context) {
-  const headers = {
-    'Content-Type' : 'text/html'
-  };
-
-  return isTranscoded === 'bb' ? await fetch(redirectUrl, {
-    headers: headers,
-  }): context.next();
- 
+function isExcludedPath(path) {
+  return BLOCKED_PATHS.some((languages) => path.startsWith(languages));
 }
 
-function setCookies(context: Context, cookieName: string, cookieValue: string, expireTime: number | Date) {
-    context.cookies.set({
-        name: cookieName,
-        value: cookieValue,
-        expires: expireTime,
-        path: '/',
-    });
+const computeRandomSegment = () =>
+  Math.random() <= TRANSCODING_TRAFFIC_PERCENTAGE ? "ssc" : "bb";
+
+const cleanupProxyCookie = (context: Context) => {
+  setSegmentCookie(context, "ssc");
+};
+
+const getSegmentFromCookie = (context: Context): UserSegment | undefined => {
+  const proxyCookie = context.cookies.get(BB_PROXY_COOKIE);
+  const edgeCookie = context.cookies.get(SSC_PROXY_COOKIE);
+
+  if (edgeCookie) {
+    return "ssc";
+  }
+
+  if (proxyCookie) {
+    return "bb";
+  }
+
+  return undefined;
+};
+
+const setSegmentCookie = (context: Context, segment: UserSegment) => {
+  const now = new Date();
+  now.setFullYear(now.getFullYear() + 1);
+  const expireTime = now.getTime();
+
+  const cookieNameToSet = segment === "bb" ? BB_PROXY_COOKIE : SSC_PROXY_COOKIE;
+  const cookieNameToDelete =
+    segment === "bb" ? SSC_PROXY_COOKIE : BB_PROXY_COOKIE;
+
+  context.cookies.delete({
+    name: cookieNameToDelete,
+    path: "/",
+    domain: ".silversea.com"
+  });
+  context.cookies.set({
+    name: cookieNameToSet,
+    value: segment,
+    expires: expireTime,
+    path: "/",
+    domain: ".silversea.com"
+  });
+};
+
+function stringPresent(content: string | null | undefined): content is string {
+  if (content == null || content == undefined) return false;
+
+  return content.trim() != "";
 }
 
-function validateLanguage(path) {
-    return UNSUPPORTED_LANGUAGES.some(languages => path.startsWith(languages))
-}
-
+// eslint-disable-next-line import/no-unused-modules
 export const config: Config = {
-    path: "/*",
-    excludedPath: ["/*.css", "/*.js", "/*png", "*.webmanifest"]
+  path: "/*",
+  excludedPath: [
+    "/*.css",
+    "/*.js",
+    "/*.map",
+    "/*.json",
+    "/*.webmanifest",
+    "/*.png",
+    "/*.svg",
+    "/*.php",
+    "/static/*"
+  ]
 };
+
+ 
