@@ -58,7 +58,7 @@ export default async (request: Request, context: Context) => {
 
     }
 
-    return redirect(trafficRouting,request.url, context);
+    return redirect(trafficRouting,'https://www-silversea.uat.bbhosted.com', context);
 };
 
 async function redirect(isTranscoded: string, redirectUrl: string, context: Context) {
