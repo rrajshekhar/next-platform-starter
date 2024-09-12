@@ -1,80 +1,79 @@
 import type { Context, Config } from "@netlify/edge-functions";
 
-const CURRENT_COOKIE = "edge_ssc";
-const NEW_COOKIE = "edge_bb";
+const PROXY_COOKIE = "edge_proxy";
+const TRANSCODING_URL = Netlify.env.get("TRANSCODING_URL");
 const TRANSCODING_TRAFFIC_PERCENTAGE = parseFloat(Netlify.env.get("TRANSCODING_TRAFFIC_PERCENTAGE") ?? 1);
-const UNSUPPORTED_LANGUAGES = ['/de/', '/pt-br/', '/es/', '/fr/'];
-
-const newSite = 'bb';
-const oldSite = 'ssc';
+const UNSUPPORTED_LANGUAGES = ['/de/','/pt-br/','/es/','/fr/'];
 
 export default async (request: Request, context: Context) => {
 
 
-    const url = new URL(request.url);
-    const path = url.pathname;
+  const url = new URL(request.url);
+  const path = url.pathname;
 
-    const forceOverride = url.searchParams.get("forceOverride");
-    const newCookieValue = context.cookies.get(NEW_COOKIE);
-    const oldCookieValue = context.cookies.get(CURRENT_COOKIE);
+  const forceOverride = url.searchParams.get("forceOverride");
+  const proxyCookie = context.cookies.get(PROXY_COOKIE);
 
-    const now = new Date();
-    now.setFullYear(now.getFullYear() + 1);
-    const expireTime = now.getTime();
+   // Sample for expiry
+   const now = new Date();
+   const time = now.getTime();
+   const expireTime = time + 1000*36000;
 
-    if (validateLanguage(path) || forceOverride === oldSite) {
-        //console.log('entered override for ssc',request.url, proxyCookie, edgeCookie);
-        if (!oldCookieValue) {
-            setCookies(context, CURRENT_COOKIE, oldSite, expireTime);
-        }
-        if (newCookieValue) {
-            setCookies(context, NEW_COOKIE, newSite, new Date(0));
-        }
+  if(TRANSCODING_URL === undefined || validateLanguage(path) || forceOverride === 'ssc') {
+    if(proxyCookie){
+      context.cookies.set({
+        name: PROXY_COOKIE,
+        expires: new Date(0),
+        path:'/',
+      });
     }
+    return;
+ }
 
-    if (forceOverride === newSite) {
-        //console.log('entered override for bb',request.url, proxyCookie, edgeCookie);
-        if (!newCookieValue) {
-            setCookies(context, NEW_COOKIE, newSite, expireTime);
-        }
-        if (oldCookieValue) {
-            setCookies(context, CURRENT_COOKIE, oldSite, new Date(0));
-        }
-    }
+  const proxyUrl =new URL(path, TRANSCODING_URL).toString();
 
-    if (newCookieValue || oldCookieValue) {
-        return context.next();
-    }
-
-    //console.log('entered the routing logic',request.url,proxyCookie,edgeCookie);
-
-    const trafficRouting = Math.random() <= TRANSCODING_TRAFFIC_PERCENTAGE ? oldSite : newSite;
-
-    if (trafficRouting === newSite) {
-        setCookies(context, NEW_COOKIE, trafficRouting, expireTime);
-    }
-    else {
-        setCookies(context, CURRENT_COOKIE, trafficRouting, expireTime);
-
-    }
-
-    return context.next(new Request(request));
-};
-
-function setCookies(context: Context, cookieName: string, cookieValue: string, expireTime: number | Date) {
+  if(forceOverride === 'bb') {
     context.cookies.set({
-        name: cookieName,
-        value: cookieValue,
+        name: PROXY_COOKIE,
+        value: 'bb',
         expires: expireTime,
         path: '/',
-    });
+      });
+      return;
+  }
+
+  if(proxyCookie) {
+      return redirect(proxyCookie, proxyUrl, context);
+  }
+  const trafficRouting = Math.random() <= TRANSCODING_TRAFFIC_PERCENTAGE ? "ssc" : "bb";
+
+  context.cookies.set({
+    name: PROXY_COOKIE,
+    value: trafficRouting,
+    expires: expireTime,
+    path: '/',
+  });
+
+  return redirect(trafficRouting, proxyUrl, context);
+};
+
+async function redirect(isTranscoded: string, redirectUrl: string, context: Context) {
+  const headers = {
+    'Content-Type' : 'text/html'
+  };
+
+  return isTranscoded === 'bb' ? await fetch(redirectUrl, {
+    headers: headers,
+  }): context.next();
+ 
 }
 
 function validateLanguage(path) {
-    return UNSUPPORTED_LANGUAGES.some(languages => path.startsWith(languages))
+  return UNSUPPORTED_LANGUAGES.some(languages => path.startsWith(languages))
 }
 
 export const config: Config = {
-    path: "/*",
-    excludedPath: ["/*.css", "/*.js", "/*png", "*.webmanifest"]
+  path: "/*"
 };
+
+
