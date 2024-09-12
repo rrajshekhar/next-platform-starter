@@ -1,60 +1,64 @@
 import type { Context, Config } from "@netlify/edge-functions";
 
-const PROXY_COOKIE = "edge_proxy";
-const TRANSCODING_URL = Netlify.env.get("TRANSCODING_URL");
+const CURRENT_COOKIE = "edge_ssc";
+const NEW_COOKIE = "edge_bb";
 const TRANSCODING_TRAFFIC_PERCENTAGE = parseFloat(Netlify.env.get("TRANSCODING_TRAFFIC_PERCENTAGE") ?? 1);
-const UNSUPPORTED_LANGUAGES = ['/de/','/pt-br/','/es/','/fr/'];
+const UNSUPPORTED_LANGUAGES = ['/de/', '/pt-br/', '/es/', '/fr/'];
+
+const newSite = 'bb';
+const oldSite = 'ssc';
 
 export default async (request: Request, context: Context) => {
 
 
-  const url = new URL(request.url);
-  const path = url.pathname;
+    const url = new URL(request.url);
+    const path = url.pathname;
 
-  const forceOverride = url.searchParams.get("forceOverride");
-  const proxyCookie = context.cookies.get(PROXY_COOKIE);
+    const forceOverride = url.searchParams.get("forceOverride");
+    const newCookieValue = context.cookies.get(NEW_COOKIE);
+    const oldCookieValue = context.cookies.get(CURRENT_COOKIE);
 
-   // Sample for expiry
-   const now = new Date();
-   const time = now.getTime();
-   const expireTime = time + 1000*36000;
+    const now = new Date();
+    now.setFullYear(now.getFullYear() + 1);
+    const expireTime = now.getTime();
 
-  if(TRANSCODING_URL === undefined || validateLanguage(path) || forceOverride === 'ssc') {
-    if(proxyCookie){
-      context.cookies.set({
-        name: PROXY_COOKIE,
-        expires: new Date(0),
-        path:'/',
-      });
+    if (validateLanguage(path) || forceOverride === oldSite) {
+        //console.log('entered override for ssc',request.url, proxyCookie, edgeCookie);
+        if (!oldCookieValue) {
+            setCookies(context, CURRENT_COOKIE, oldSite, expireTime);
+        }
+        if (newCookieValue) {
+            setCookies(context, NEW_COOKIE, newSite, new Date(0));
+        }
     }
-    return;
- }
 
-  const proxyUrl =new URL(path, TRANSCODING_URL).toString();
+    if (forceOverride === newSite) {
+        //console.log('entered override for bb',request.url, proxyCookie, edgeCookie);
+        if (!newCookieValue) {
+            setCookies(context, NEW_COOKIE, newSite, expireTime);
+        }
+        if (oldCookieValue) {
+            setCookies(context, CURRENT_COOKIE, oldSite, new Date(0));
+        }
+    }
 
-  if(forceOverride === 'bb') {
-    context.cookies.set({
-        name: PROXY_COOKIE,
-        value: 'bb',
-        expires: expireTime,
-        path: '/',
-      });
-      return;
-  }
+    if (newCookieValue || oldCookieValue) {
+        return context.next();
+    }
 
-  if(proxyCookie) {
-      return redirect(proxyCookie, proxyUrl, context);
-  }
-  const trafficRouting = Math.random() <= TRANSCODING_TRAFFIC_PERCENTAGE ? "ssc" : "bb";
+    //console.log('entered the routing logic',request.url,proxyCookie,edgeCookie);
 
-  context.cookies.set({
-    name: PROXY_COOKIE,
-    value: trafficRouting,
-    expires: expireTime,
-    path: '/',
-  });
+    const trafficRouting = Math.random() <= TRANSCODING_TRAFFIC_PERCENTAGE ? oldSite : newSite;
 
-  return redirect(trafficRouting, proxyUrl, context);
+    if (trafficRouting === newSite) {
+        setCookies(context, NEW_COOKIE, trafficRouting, expireTime);
+    }
+    else {
+        setCookies(context, CURRENT_COOKIE, trafficRouting, expireTime);
+
+    }
+
+    return redirect(trafficRouting,request.url, context);
 };
 
 async function redirect(isTranscoded: string, redirectUrl: string, context: Context) {
@@ -68,12 +72,20 @@ async function redirect(isTranscoded: string, redirectUrl: string, context: Cont
  
 }
 
+function setCookies(context: Context, cookieName: string, cookieValue: string, expireTime: number | Date) {
+    context.cookies.set({
+        name: cookieName,
+        value: cookieValue,
+        expires: expireTime,
+        path: '/',
+    });
+}
+
 function validateLanguage(path) {
-  return UNSUPPORTED_LANGUAGES.some(languages => path.startsWith(languages))
+    return UNSUPPORTED_LANGUAGES.some(languages => path.startsWith(languages))
 }
 
 export const config: Config = {
-  path: "/*"
+    path: "/*",
+    excludedPath: ["/*.css", "/*.js", "/*png", "*.webmanifest"]
 };
-
-
